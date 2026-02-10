@@ -3,13 +3,19 @@ package com.rutuj.EmployeeMavenProject.controller;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
-
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
 public class HomeController {
+
+	
+	@GetMapping("/")
+	public String home() {
+	    return "redirect:/login";
+	}
 
     @GetMapping("/register")
     public String showForm() {

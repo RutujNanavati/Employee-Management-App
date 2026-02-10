@@ -4,10 +4,23 @@
 
 <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/style.css">
 
+<div class="navbar">
+    <div class="nav-left">
+        Employee Management App
+    </div>
+
+   <div class="nav-right">
+        <a href="${pageContext.request.contextPath}/dashboard">Dashboard</a>
+        <a href="${pageContext.request.contextPath}/employees">Employees</a>
+        <b href="${pageContext.request.contextPath}/logout">Logout</b>
+</div>
+</div>
+
 
 <div class="container-large">
 
 <center> <h1>Employee List</h1> </center>
+
 
 <div class="add-box">
     <a href="${pageContext.request.contextPath}/employees/add">+ Add Employee</a>

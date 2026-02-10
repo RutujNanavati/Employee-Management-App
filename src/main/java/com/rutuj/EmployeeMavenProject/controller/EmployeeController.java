@@ -2,6 +2,7 @@ package com.rutuj.EmployeeMavenProject.controller;
 
 import java.sql.*;
 import java.util.*;
+import javax.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -18,10 +19,16 @@ public class EmployeeController {
                 "@Rutuj2005"
         );
     }
+    
+    
 
     // ================= LIST =================
     @GetMapping
-    public String listEmployees(Model model) {
+    public String listEmployees(Model model, HttpSession session) {
+
+        if (session.getAttribute("user") == null) {
+            return "redirect:/login";
+        }
 
         List<Map<String, Object>> list = new ArrayList<>();
 
