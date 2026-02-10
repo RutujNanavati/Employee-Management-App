@@ -18,32 +18,16 @@ public class EmployeeController {
                 "@Rutuj2005"
         );
     }
-    
-    @GetMapping("/add")
-    public String addEmployeePage(Model model) {
 
-        model.addAttribute("id", 0);
-        model.addAttribute("firstName", "");
-        model.addAttribute("lastName", "");
-        model.addAttribute("username", "");
-        model.addAttribute("address", "");
-        model.addAttribute("contactNo", "");
-
-        model.addAttribute("mode", "add");
-
-        return "editEmployee";
-    }
-
-
-    // 🔹 LIST ALL EMPLOYEES
+    // ================= LIST =================
     @GetMapping
-    public String showEmployees(Model model) {
+    public String listEmployees(Model model) {
 
-        List<Map<String, Object>> employeeList = new ArrayList<>();
+        List<Map<String, Object>> list = new ArrayList<>();
 
         try (Connection con = getConnection();
-             Statement stmt = con.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT * FROM employees")) {
+             Statement st = con.createStatement();
+             ResultSet rs = st.executeQuery("SELECT * FROM employees")) {
 
             while (rs.next()) {
                 Map<String, Object> emp = new HashMap<>();
@@ -53,40 +37,35 @@ public class EmployeeController {
                 emp.put("username", rs.getString("username"));
                 emp.put("address", rs.getString("address"));
                 emp.put("contactNo", rs.getString("contactNo"));
-                employeeList.add(emp);
-                
-                model.addAttribute("mode", "add");
+                list.add(emp);
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        model.addAttribute("employees", employeeList);
+        model.addAttribute("employees", list);
         return "employees";
     }
 
-    // 🔹 DELETE EMPLOYEE
-    @GetMapping("/delete/{id}")
-    public String deleteEmployee(@PathVariable int id) {
+    // ================= ADD PAGE =================
+    @GetMapping("/add")
+    public String addPage(Model model) {
 
-        try (Connection con = getConnection();
-             PreparedStatement ps =
-                     con.prepareStatement("DELETE FROM employees WHERE id=?")) {
+        model.addAttribute("id", 0);
+        model.addAttribute("firstName", "");
+        model.addAttribute("lastName", "");
+        model.addAttribute("username", "");
+        model.addAttribute("address", "");
+        model.addAttribute("contactNo", "");
+        model.addAttribute("mode", "add");
 
-            ps.setInt(1, id);
-            ps.executeUpdate();	
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return "redirect:/employees";
+        return "editEmployee";
     }
 
-    // 🔹 LOAD EDIT PAGE
+    // ================= EDIT PAGE =================
     @GetMapping("/edit/{id}")
-    public String editEmployee(@PathVariable int id, Model model) {
+    public String editPage(@PathVariable int id, Model model) {
 
         try (Connection con = getConnection();
              PreparedStatement ps =
@@ -104,13 +83,16 @@ public class EmployeeController {
                 model.addAttribute("contactNo", rs.getString("contactNo"));
             }
 
+            model.addAttribute("mode", "edit"); // 🔥 MOST IMPORTANT
+
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         return "editEmployee";
     }
-    
+
+    // ================= SAVE =================
     @PostMapping("/save")
     public String saveEmployee(
             @RequestParam String firstName,
@@ -128,7 +110,6 @@ public class EmployeeController {
             ps.setString(3, username);
             ps.setString(4, address);
             ps.setString(5, contactNo);
-
             ps.executeUpdate();
 
         } catch (Exception e) {
@@ -138,8 +119,7 @@ public class EmployeeController {
         return "redirect:/employees";
     }
 
-
-    // 🔹 UPDATE EMPLOYEE
+    // ================= UPDATE =================
     @PostMapping("/update")
     public String updateEmployee(
             @RequestParam int id,
@@ -159,7 +139,24 @@ public class EmployeeController {
             ps.setString(4, address);
             ps.setString(5, contactNo);
             ps.setInt(6, id);
+            ps.executeUpdate();
 
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "redirect:/employees";
+    }
+
+    // ================= DELETE =================
+    @GetMapping("/delete/{id}")
+    public String deleteEmployee(@PathVariable int id) {
+
+        try (Connection con = getConnection();
+             PreparedStatement ps =
+                     con.prepareStatement("DELETE FROM employees WHERE id=?")) {
+
+            ps.setInt(1, id);
             ps.executeUpdate();
 
         } catch (Exception e) {

@@ -6,7 +6,7 @@
 <body>
 
 <div class="container">
-    <h2 class="success-message">${message}</h2>
+    <center><h2 class="success-message">${message}</h2></center>
 </div>
 
 </body>

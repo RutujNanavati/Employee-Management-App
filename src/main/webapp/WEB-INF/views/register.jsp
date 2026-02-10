@@ -7,7 +7,7 @@
 <body>
 
 <div class="container">
-    <h2>Employee Registration</h2>
+    <center> <h2>Employee Registration</h2> </center>
 
 <form action="${pageContext.request.contextPath}/register" method="post">
 
