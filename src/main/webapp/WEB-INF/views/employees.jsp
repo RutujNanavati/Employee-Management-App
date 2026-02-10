@@ -6,7 +6,9 @@
 
 
 <div class="container-large">
+
 <center> <h1>Employee List</h1> </center>
+
 <div class="add-box">
     <a href="${pageContext.request.contextPath}/employees/add">+ Add Employee</a>
 </div>
