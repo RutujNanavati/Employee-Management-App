@@ -1,37 +1,57 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
 <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/style.css">
 
-<div class="container">
+<div class="page-content">
 
-    <h2>Edit Employee</h2>
+    <div class="container">
 
-    <form action="${pageContext.request.contextPath}/employees/update" method="post">
+        <c:choose>
+            <c:when test="${mode eq 'add'}">
+                <h2>Add Employee</h2>
+            </c:when>
+            <c:otherwise>
+                <h2>Edit Employee</h2>
+            </c:otherwise>
+        </c:choose>
 
-        <input type="hidden" name="id" value="${id}" />
+        <form action="${pageContext.request.contextPath}/employees/${mode eq 'edit' ? 'update' : 'save'}"
+              method="post">
 
-        <div class="input-group">
-            <input type="text" name="firstName" value="${firstName}" placeholder="First Name" />
-        </div>
+            <input type="hidden" name="id" value="${id}" />
 
-        <div class="input-group">
-            <input type="text" name="lastName" value="${lastName}" placeholder="Last Name" />
-        </div>
+            <div class="input-group">
+                <input type="text" name="firstName" value="${firstName}" placeholder="First Name" required />
+            </div>
 
-        <div class="input-group">
-            <input type="text" name="username" value="${username}" placeholder="Username" />
-        </div>
+            <div class="input-group">
+                <input type="text" name="lastName" value="${lastName}" placeholder="Last Name" required />
+            </div>
 
-        <div class="input-group">
-            <input type="text" name="address" value="${address}" placeholder="Address" />
-        </div>
+            <div class="input-group">
+                <input type="text" name="username" value="${username}" placeholder="Username" required />
+            </div>
 
-        <div class="input-group">
-            <input type="text" name="contactNo" value="${contactNo}" placeholder="Contact No" />
-        </div>
+            <div class="input-group">
+                <input type="text" name="address" value="${address}" placeholder="Address" required />
+            </div>
 
-        <button type="submit">Update Employee</button>
+            <div class="input-group">
+                <input type="text" name="contactNo" value="${contactNo}" placeholder="Contact No" required />
+            </div>
 
-    </form>
+            <c:choose>
+                <c:when test="${mode eq 'edit'}">
+                    <button type="submit">Update Employee</button>
+                </c:when>
+                <c:otherwise>
+                    <button type="submit">Add Employee</button>
+                </c:otherwise>
+            </c:choose>
+
+        </form>
+
+    </div>
 
 </div>

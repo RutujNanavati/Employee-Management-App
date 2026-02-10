@@ -18,6 +18,22 @@ public class EmployeeController {
                 "@Rutuj2005"
         );
     }
+    
+    @GetMapping("/add")
+    public String addEmployeePage(Model model) {
+
+        model.addAttribute("id", 0);
+        model.addAttribute("firstName", "");
+        model.addAttribute("lastName", "");
+        model.addAttribute("username", "");
+        model.addAttribute("address", "");
+        model.addAttribute("contactNo", "");
+
+        model.addAttribute("mode", "add");
+
+        return "editEmployee";
+    }
+
 
     // 🔹 LIST ALL EMPLOYEES
     @GetMapping
@@ -38,6 +54,8 @@ public class EmployeeController {
                 emp.put("address", rs.getString("address"));
                 emp.put("contactNo", rs.getString("contactNo"));
                 employeeList.add(emp);
+                
+                model.addAttribute("mode", "add");
             }
 
         } catch (Exception e) {
@@ -92,6 +110,34 @@ public class EmployeeController {
 
         return "editEmployee";
     }
+    
+    @PostMapping("/save")
+    public String saveEmployee(
+            @RequestParam String firstName,
+            @RequestParam String lastName,
+            @RequestParam String username,
+            @RequestParam String address,
+            @RequestParam String contactNo) {
+
+        try (Connection con = getConnection();
+             PreparedStatement ps = con.prepareStatement(
+                     "INSERT INTO employees(firstName,lastName,username,address,contactNo) VALUES(?,?,?,?,?)")) {
+
+            ps.setString(1, firstName);
+            ps.setString(2, lastName);
+            ps.setString(3, username);
+            ps.setString(4, address);
+            ps.setString(5, contactNo);
+
+            ps.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "redirect:/employees";
+    }
+
 
     // 🔹 UPDATE EMPLOYEE
     @PostMapping("/update")

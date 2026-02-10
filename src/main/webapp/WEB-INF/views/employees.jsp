@@ -1,9 +1,15 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
 <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/style.css">
 
 <div class="container-large">
+
+<a href="${pageContext.request.contextPath}/employees/add" class="add-btn">
+    + Add Employee
+</a>
+
 
     <h2>Employee List</h2>
 
