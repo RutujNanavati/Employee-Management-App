@@ -101,11 +101,43 @@ button:hover{
     text-align: left;   /* 🔥 ye add karo */
 }
 
-.edit-btn { color:#61db57; margin-right:10px; }
-.delete-btn { color:red; }
+/* Action column alignment */
+.action-buttons {
+    display: flex;
+    gap: 10px;
+}
 
-.edit-btn:hover { color:darkgreen; margin-right:10px; }
-.delete-btn:hover { color:DarkRed; }
+/* Common Button Style */
+/* .edit-btn,
+.delete-btn {
+    padding: 6px 14px;
+    border-radius: 6px;
+    text-decoration: none;
+    color: white;
+    font-size: 13px;
+    font-weight: 500;
+    transition: 0.3s;
+    display: inline-block;
+} */
+
+/* Edit Button */
+.edit-btn {
+    background-color: #61db57;
+}
+
+.edit-btn:hover {
+    background-color: darkgreen;
+}
+
+/* Delete Button */
+.delete-btn {
+    background-color: #f44336;
+}
+
+.delete-btn:hover {
+    background-color: #c62828;
+}
+
 
 .dashboard-btn {
     display: inline-block;
@@ -210,4 +242,6 @@ body {
 
 .reset-btn {background-color: black;}
 .reset-btn:hover {background-color: red;}
+
+
 

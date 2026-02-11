@@ -44,7 +44,7 @@
 
 
 
-<center> <h1>Employee List</h1> </center>
+<center> <h1> Employee List </h1> </center>
 
 
 <div class="add-box">
