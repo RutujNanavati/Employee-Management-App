@@ -5,9 +5,9 @@
 <div class="navbar">
     <div class="nav-left">
         Employee Management App
-    </div>
+</div>
 
-    <div class="nav-right">
+ <div class="nav-right">
         <a href="${pageContext.request.contextPath}/dashboard">Dashboard</a>
         <a href="${pageContext.request.contextPath}/employees">Employees</a>
         <b href="${pageContext.request.contextPath}/logout">Logout</b>

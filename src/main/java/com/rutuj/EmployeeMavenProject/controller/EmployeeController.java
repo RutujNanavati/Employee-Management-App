@@ -24,17 +24,33 @@ public class EmployeeController {
 
     // ================= LIST =================
     @GetMapping
-    public String listEmployees(Model model, HttpSession session) {
+    public String showEmployees(
+            @RequestParam(required = false) String keyword,
+            Model model) {
 
-        if (session.getAttribute("user") == null) {
-            return "redirect:/login";
+        List<Map<String, Object>> employeeList = new ArrayList<>();
+
+        String sql;
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql = "SELECT * FROM employees WHERE " +
+                  "firstName LIKE ? OR lastName LIKE ? OR username LIKE ? OR contactNo LIKE ?";
+        } else {
+            sql = "SELECT * FROM employees";
         }
 
-        List<Map<String, Object>> list = new ArrayList<>();
-
         try (Connection con = getConnection();
-             Statement st = con.createStatement();
-             ResultSet rs = st.executeQuery("SELECT * FROM employees")) {
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                String searchValue = "%" + keyword + "%";
+                ps.setString(1, searchValue);
+                ps.setString(2, searchValue);
+                ps.setString(3, searchValue);
+                ps.setString(4, searchValue);
+            }
+
+            ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
                 Map<String, Object> emp = new HashMap<>();
@@ -42,18 +58,19 @@ public class EmployeeController {
                 emp.put("firstName", rs.getString("firstName"));
                 emp.put("lastName", rs.getString("lastName"));
                 emp.put("username", rs.getString("username"));
-                emp.put("address", rs.getString("address"));
                 emp.put("contactNo", rs.getString("contactNo"));
-                list.add(emp);
+                employeeList.add(emp);
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        model.addAttribute("employees", list);
+        model.addAttribute("employees", employeeList);
+        model.addAttribute("keyword", keyword); // so input retains value
         return "employees";
     }
+
 
     // ================= ADD PAGE =================
     @GetMapping("/add")

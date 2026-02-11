@@ -19,6 +19,31 @@
 
 <div class="container-large">
 
+<div class="search-container">
+    <form method="get"
+          action="${pageContext.request.contextPath}/employees">
+
+        <input type="text"
+               name="keyword"
+               value="${keyword}"
+               placeholder="Search by name, username or contact..."
+               class="search-input"/>
+
+        <button type="submit" class="search-btn">
+            Search
+        </button>
+
+        <button type="button"
+                class="reset-btn"
+                onclick="window.location.href='${pageContext.request.contextPath}/employees'">
+            Reset
+        </button>
+
+    </form>
+</div>
+
+
+
 <center> <h1>Employee List</h1> </center>
 
 

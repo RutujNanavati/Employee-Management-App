@@ -13,8 +13,8 @@ body {
     box-shadow:0 15px 30px rgba(0,0,0,.2);
 }
 
-.container { width:400px; margin-top: 50px; }
-.container-large { width:90%; max-width:900px; margin-top: 50px;}
+.container { width:400px; margin-top: 20px; }
+.container-large { width:90%; max-width:900px; margin-top: 20px;}
 
 
 
@@ -186,3 +186,28 @@ button:hover{
 body {
     padding-top: 80px;
 }
+
+
+.search-container form {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.search-input {
+    flex: 1;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #400040;
+}
+
+.search-btn,.reset-btn {
+    padding: 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    width: auto !important;
+}
+
+.reset-btn {background-color: black;}
+.reset-btn:hover {background-color: red;}
+
