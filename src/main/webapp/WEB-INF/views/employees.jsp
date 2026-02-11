@@ -4,6 +4,8 @@
 
 <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/style.css">
 
+<!-- NAV BAR -->
+
 <div class="navbar">
     <div class="nav-left">
         Employee Management App
@@ -16,7 +18,7 @@
 </div>
 </div>
 
-
+<!-- search class -->
 <div class="container-large">
 
 <div class="search-container">
@@ -42,7 +44,7 @@
     </form>
 </div>
 
-
+<!-- Employee Table -->
 
 <div class="table-header">
     <h2 class="page-title">Employee List</h2>
@@ -53,7 +55,7 @@
     </a>
 </div>
 
-
+ 
 <table class="employee-table">
 <tr>
     <th>ID</th>
@@ -83,3 +85,31 @@
 
 </table>
 </div>
+
+<!-- PAGINATION -->
+
+<div class="pagination">
+
+    <c:if test="${currentPage > 1}">
+        <a href="${pageContext.request.contextPath}/employees?page=${currentPage - 1}&keyword=${keyword}" 
+           class="page-btn">
+           Previous
+        </a>
+    </c:if>
+
+    <c:forEach begin="1" end="${totalPages}" var="i">
+        <a href="${pageContext.request.contextPath}/employees?page=${i}&keyword=${keyword}"
+           class="page-btn ${i == currentPage ? 'active-page' : ''}">
+           ${i}
+        </a>
+    </c:forEach>
+
+    <c:if test="${currentPage < totalPages}">
+        <a href="${pageContext.request.contextPath}/employees?page=${currentPage + 1}&keyword=${keyword}" 
+           class="page-btn">
+           Next
+        </a>
+    </c:if>
+
+</div>
+

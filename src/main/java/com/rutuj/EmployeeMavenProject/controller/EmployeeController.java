@@ -25,32 +25,58 @@ public class EmployeeController {
     // ================= LIST =================
     @GetMapping
     public String showEmployees(
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(required = false) String keyword,
             Model model) {
 
+        int pageSize = 5;
+        int offset = (page - 1) * pageSize;
+
         List<Map<String, Object>> employeeList = new ArrayList<>();
+        int totalEmployees = 0;
 
-        String sql;
+        try (Connection con = getConnection()) {
 
-        if (keyword != null && !keyword.trim().isEmpty()) {
-            sql = "SELECT * FROM employees WHERE " +
-                  "firstName LIKE ? OR lastName LIKE ? OR username LIKE ? OR contactNo LIKE ?";
-        } else {
-            sql = "SELECT * FROM employees";
-        }
+            String countSql = "SELECT COUNT(*) FROM employees";
+            String dataSql = "SELECT * FROM employees LIMIT ? OFFSET ?";
 
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-
-            if (keyword != null && !keyword.trim().isEmpty()) {
-                String searchValue = "%" + keyword + "%";
-                ps.setString(1, searchValue);
-                ps.setString(2, searchValue);
-                ps.setString(3, searchValue);
-                ps.setString(4, searchValue);
+            // 🔎 SEARCH SUPPORT
+            if (keyword != null && !keyword.isEmpty()) {
+                countSql = "SELECT COUNT(*) FROM employees WHERE firstName LIKE ? OR username LIKE ? OR contactNo LIKE ?";
+                dataSql = "SELECT * FROM employees WHERE firstName LIKE ? OR username LIKE ? OR contactNo LIKE ? LIMIT ? OFFSET ?";
             }
 
-            ResultSet rs = ps.executeQuery();
+            // 🔹 COUNT QUERY
+            PreparedStatement countPs = con.prepareStatement(countSql);
+
+            if (keyword != null && !keyword.isEmpty()) {
+                String search = "%" + keyword + "%";
+                countPs.setString(1, search);
+                countPs.setString(2, search);
+                countPs.setString(3, search);
+            }
+
+            ResultSet countRs = countPs.executeQuery();
+            if (countRs.next()) {
+                totalEmployees = countRs.getInt(1);
+            }
+
+            // 🔹 DATA QUERY
+            PreparedStatement dataPs = con.prepareStatement(dataSql);
+
+            if (keyword != null && !keyword.isEmpty()) {
+                String search = "%" + keyword + "%";
+                dataPs.setString(1, search);
+                dataPs.setString(2, search);
+                dataPs.setString(3, search);
+                dataPs.setInt(4, pageSize);
+                dataPs.setInt(5, offset);
+            } else {
+                dataPs.setInt(1, pageSize);
+                dataPs.setInt(2, offset);
+            }
+
+            ResultSet rs = dataPs.executeQuery();
 
             while (rs.next()) {
                 Map<String, Object> emp = new HashMap<>();
@@ -66,8 +92,13 @@ public class EmployeeController {
             e.printStackTrace();
         }
 
+        int totalPages = (int) Math.ceil((double) totalEmployees / pageSize);
+
         model.addAttribute("employees", employeeList);
-        model.addAttribute("keyword", keyword); // so input retains value
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("keyword", keyword);
+
         return "employees";
     }
 
