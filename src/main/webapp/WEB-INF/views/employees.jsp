@@ -44,12 +44,15 @@
 
 
 
-<center> <h1> Employee List </h1> </center>
+<div class="table-header">
+    <h2 class="page-title">Employee List</h2>
 
-
-<div class="add-box">
-    <a href="${pageContext.request.contextPath}/employees/add">+ Add Employee</a>
+    <a href="${pageContext.request.contextPath}/employees/add"
+       class="add-btn">
+        + Add Employee
+    </a>
 </div>
+
 
 <table class="employee-table">
 <tr>
@@ -68,7 +71,12 @@
     <td>${emp.contactNo}</td>
     <td>
         <a class="edit-btn" href="${pageContext.request.contextPath}/employees/edit/${emp.id}">Edit</a>
-        <a class="delete-btn" href="${pageContext.request.contextPath}/employees/delete/${emp.id}">Delete</a>
+        <a class="delete-btn"
+   href="${pageContext.request.contextPath}/employees/delete/${emp.id}"
+   onclick="return confirm('⚠️ This action cannot be undone. Do you really want to delete Employee?');">
+   Delete
+</a>
+
     </td>
 </tr>
 </c:forEach>
