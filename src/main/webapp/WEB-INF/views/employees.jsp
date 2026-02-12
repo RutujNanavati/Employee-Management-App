@@ -86,18 +86,6 @@
 
 
 <!-- Employee Table -->
-
-<%-- <div class="table-header">
-    <h2 class="page-title">Employee List</h2>
-    
-        <!-- ADD BUTTON -->
-    <a href="${pageContext.request.contextPath}/employees/add"
-       class="add-btn">
-        + Add Employee
-    </a>
-    
-</div>
- --%>
  
 <table class="employee-table">
 <tr>
