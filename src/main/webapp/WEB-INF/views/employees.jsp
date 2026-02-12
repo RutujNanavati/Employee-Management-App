@@ -14,7 +14,7 @@
    <div class="nav-right">
         <a href="${pageContext.request.contextPath}/dashboard">Dashboard</a>
         <a href="${pageContext.request.contextPath}/employees">Employees</a>
-        <b href="${pageContext.request.contextPath}/logout">Logout</b>
+        <a href="${pageContext.request.contextPath}/logout">Logout</a>
 </div>
 </div>
 
