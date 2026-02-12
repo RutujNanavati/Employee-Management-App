@@ -21,41 +21,83 @@
 <!-- search class -->
 <div class="container-large">
 
-<div class="search-container">
+<div class="top-controls">
+
+       <!-- TITLE + ADD BUTTON ROW -->
+    <div class="header-row">
+        <center><h2>Employee List</h2></center>
+
+        <a href="${pageContext.request.contextPath}/employees/add"
+           class="add-btn">
+            + Add Employee
+        </a>
+    </div>
+
+    <!-- SEARCH + FILTER ROW -->
+    <div class="controls-row">
     <form method="get"
           action="${pageContext.request.contextPath}/employees">
 
+        <!-- Search Input -->
         <input type="text"
                name="keyword"
                value="${keyword}"
-               placeholder="Search by name, username or contact..."
+               placeholder="Search..."
                class="search-input"/>
 
-        <button type="submit" class="search-btn">
-            Search
-        </button>
+        <!-- Search Button -->
+        <button type="submit" class="search-btn">Search</button>
 
+        <!-- Page Size Dropdown -->
+        <select name="size"
+                class="dropdown-size"
+                onchange="this.form.submit()">
+
+            <option value="5" ${size==5?'selected':''}>5</option>
+            <option value="10" ${size==10?'selected':''}>10</option>
+            <option value="20" ${size==20?'selected':''}>20</option>
+        </select>
+
+        <!-- Sort Dropdown -->
+        <select name="sort"
+                class="dropdown-filter"
+                onchange="this.form.submit()">
+
+            <option value="id" ${sort=='id'?'selected':''}>By ID</option>
+            <option value="firstName" ${sort=='firstName'?'selected':''}>Name</option>
+            <option value="username" ${sort=='username'?'selected':''}>Username</option>
+            <option value="latest" ${sort=='latest'?'selected':''}>Latest</option>
+        </select>
+
+        <!-- Reset -->
         <button type="button"
-                class="reset-btn"
-                onclick="window.location.href='${pageContext.request.contextPath}/employees'">
-            Reset
-        </button>
+        class="reset-btn"
+        onclick="window.location.href='${pageContext.request.contextPath}/employees'">
+    Reset
+</button>
+
 
     </form>
-    
 </div>
+
+
+
+</div>
+
 
 <!-- Employee Table -->
 
-<div class="table-header">
+<%-- <div class="table-header">
     <h2 class="page-title">Employee List</h2>
-
+    
+        <!-- ADD BUTTON -->
     <a href="${pageContext.request.contextPath}/employees/add"
        class="add-btn">
         + Add Employee
     </a>
+    
 </div>
-
+ --%>
  
 <table class="employee-table">
 <tr>
@@ -92,25 +134,26 @@
 <div class="pagination">
 
     <c:if test="${currentPage > 1}">
-        <a href="${pageContext.request.contextPath}/employees?page=${currentPage - 1}&keyword=${keyword}" 
+        <a href="${pageContext.request.contextPath}/employees?page=${currentPage-1}&size=${size}&sort=${sort}&keyword=${keyword}"
            class="page-btn">
-           Previous
+            Previous
         </a>
     </c:if>
 
     <c:forEach begin="1" end="${totalPages}" var="i">
-        <a href="${pageContext.request.contextPath}/employees?page=${i}&keyword=${keyword}"
+        <a href="${pageContext.request.contextPath}/employees?page=${i}&size=${size}&sort=${sort}&keyword=${keyword}"
            class="page-btn ${i == currentPage ? 'active-page' : ''}">
-           ${i}
+            ${i}
         </a>
     </c:forEach>
 
     <c:if test="${currentPage < totalPages}">
-        <a href="${pageContext.request.contextPath}/employees?page=${currentPage + 1}&keyword=${keyword}" 
+        <a href="${pageContext.request.contextPath}/employees?page=${currentPage+1}&size=${size}&sort=${sort}&keyword=${keyword}"
            class="page-btn">
-           Next
+            Next
         </a>
     </c:if>
 
 </div>
+
 

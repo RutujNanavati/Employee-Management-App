@@ -26,57 +26,44 @@ public class EmployeeController {
     @GetMapping
     public String showEmployees(
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "id") String sort,
+            @RequestParam(defaultValue = "") String keyword,
             Model model) {
 
-        int pageSize = 5;
-        int offset = (page - 1) * pageSize;
-
         List<Map<String, Object>> employeeList = new ArrayList<>();
-        int totalEmployees = 0;
+        int totalRecords = 0;
+        int offset = (page - 1) * size;
+
+        String orderBy = "id ASC";   // default = latest
+
+        if (sort.equals("firstName")) orderBy = "firstName ASC";
+        if (sort.equals("username")) orderBy = "username ASC";
+        if (sort.equals("latest")) orderBy = "id DESC";
 
         try (Connection con = getConnection()) {
 
-            String countSql = "SELECT COUNT(*) FROM employees";
-            String dataSql = "SELECT * FROM employees LIMIT ? OFFSET ?";
-
-            // 🔎 SEARCH SUPPORT
-            if (keyword != null && !keyword.isEmpty()) {
-                countSql = "SELECT COUNT(*) FROM employees WHERE firstName LIKE ? OR username LIKE ? OR contactNo LIKE ?";
-                dataSql = "SELECT * FROM employees WHERE firstName LIKE ? OR username LIKE ? OR contactNo LIKE ? LIMIT ? OFFSET ?";
-            }
-
-            // 🔹 COUNT QUERY
-            PreparedStatement countPs = con.prepareStatement(countSql);
-
-            if (keyword != null && !keyword.isEmpty()) {
-                String search = "%" + keyword + "%";
-                countPs.setString(1, search);
-                countPs.setString(2, search);
-                countPs.setString(3, search);
-            }
-
+            // Count total records
+            PreparedStatement countPs = con.prepareStatement(
+                    "SELECT COUNT(*) FROM employees WHERE firstName LIKE ? OR username LIKE ?");
+            countPs.setString(1, "%" + keyword + "%");
+            countPs.setString(2, "%" + keyword + "%");
             ResultSet countRs = countPs.executeQuery();
+
             if (countRs.next()) {
-                totalEmployees = countRs.getInt(1);
+                totalRecords = countRs.getInt(1);
             }
 
-            // 🔹 DATA QUERY
-            PreparedStatement dataPs = con.prepareStatement(dataSql);
+            // Fetch paginated data
+            PreparedStatement ps = con.prepareStatement(
+                    "SELECT * FROM employees WHERE firstName LIKE ? OR username LIKE ? " +
+                            "ORDER BY " + orderBy + " LIMIT ? OFFSET ?");
+            ps.setString(1, "%" + keyword + "%");
+            ps.setString(2, "%" + keyword + "%");
+            ps.setInt(3, size);
+            ps.setInt(4, offset);
 
-            if (keyword != null && !keyword.isEmpty()) {
-                String search = "%" + keyword + "%";
-                dataPs.setString(1, search);
-                dataPs.setString(2, search);
-                dataPs.setString(3, search);
-                dataPs.setInt(4, pageSize);
-                dataPs.setInt(5, offset);
-            } else {
-                dataPs.setInt(1, pageSize);
-                dataPs.setInt(2, offset);
-            }
-
-            ResultSet rs = dataPs.executeQuery();
+            ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
                 Map<String, Object> emp = new HashMap<>();
@@ -92,15 +79,18 @@ public class EmployeeController {
             e.printStackTrace();
         }
 
-        int totalPages = (int) Math.ceil((double) totalEmployees / pageSize);
+        int totalPages = (int) Math.ceil((double) totalRecords / size);
 
         model.addAttribute("employees", employeeList);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", totalPages);
+        model.addAttribute("size", size);
+        model.addAttribute("sort", sort);
         model.addAttribute("keyword", keyword);
 
         return "employees";
     }
+
 
 
     // ================= ADD PAGE =================
