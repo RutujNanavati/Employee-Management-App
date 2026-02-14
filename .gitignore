@@ -1,5 +1,12 @@
 target/
 
+*.dmg
+
+*.exe
+
+*.zip
+
+
 *.class
 
 .settings/
