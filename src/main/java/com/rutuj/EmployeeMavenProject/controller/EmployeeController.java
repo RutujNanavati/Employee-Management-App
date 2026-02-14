@@ -2,7 +2,6 @@ package com.rutuj.EmployeeMavenProject.controller;
 
 import java.sql.*;
 import java.util.*;
-import javax.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -19,8 +18,6 @@ public class EmployeeController {
                 "@Rutuj2005"
         );
     }
-    
-    
 
     // ================= LIST =================
     @GetMapping
@@ -103,10 +100,14 @@ public class EmployeeController {
         model.addAttribute("username", "");
         model.addAttribute("address", "");
         model.addAttribute("contactNo", "");
+        model.addAttribute("selectedCountry", "");
+        model.addAttribute("selectedState", "");
+        model.addAttribute("selectedCity", "");
         model.addAttribute("mode", "add");
 
         return "editEmployee";
     }
+
     // ================= EDIT PAGE =================
     @GetMapping("/edit/{id}")
     public String editPage(@PathVariable int id, Model model) {
@@ -125,9 +126,13 @@ public class EmployeeController {
                 model.addAttribute("username", rs.getString("username"));
                 model.addAttribute("address", rs.getString("address"));
                 model.addAttribute("contactNo", rs.getString("contactNo"));
+
+                model.addAttribute("selectedCountry", rs.getInt("country_id"));
+                model.addAttribute("selectedState", rs.getInt("state_id"));
+                model.addAttribute("selectedCity", rs.getInt("city_id"));
             }
 
-            model.addAttribute("mode", "edit"); // 🔥 MOST IMPORTANT
+            model.addAttribute("mode", "edit");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -143,17 +148,24 @@ public class EmployeeController {
             @RequestParam String lastName,
             @RequestParam String username,
             @RequestParam String address,
-            @RequestParam String contactNo) {
+            @RequestParam String contactNo,
+            @RequestParam Integer countryId,
+            @RequestParam Integer stateId,
+            @RequestParam Integer cityId) {
 
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(
-                     "INSERT INTO employees(firstName,lastName,username,address,contactNo) VALUES(?,?,?,?,?)")) {
+                     "INSERT INTO employees(firstName,lastName,username,address,contactNo,country_id,state_id,city_id) VALUES(?,?,?,?,?,?,?,?)")) {
 
             ps.setString(1, firstName);
             ps.setString(2, lastName);
             ps.setString(3, username);
             ps.setString(4, address);
             ps.setString(5, contactNo);
+            ps.setInt(6, countryId);
+            ps.setInt(7, stateId);
+            ps.setInt(8, cityId);
+
             ps.executeUpdate();
 
         } catch (Exception e) {
@@ -171,18 +183,25 @@ public class EmployeeController {
             @RequestParam String lastName,
             @RequestParam String username,
             @RequestParam String address,
-            @RequestParam String contactNo) {
+            @RequestParam String contactNo,
+            @RequestParam Integer countryId,
+            @RequestParam Integer stateId,
+            @RequestParam Integer cityId) {
 
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(
-                     "UPDATE employees SET firstName=?, lastName=?, username=?, address=?, contactNo=? WHERE id=?")) {
+                     "UPDATE employees SET firstName=?, lastName=?, username=?, address=?, contactNo=?, country_id=?, state_id=?, city_id=? WHERE id=?")) {
 
             ps.setString(1, firstName);
             ps.setString(2, lastName);
             ps.setString(3, username);
             ps.setString(4, address);
             ps.setString(5, contactNo);
-            ps.setInt(6, id);
+            ps.setInt(6, countryId);
+            ps.setInt(7, stateId);
+            ps.setInt(8, cityId);
+            ps.setInt(9, id);
+
             ps.executeUpdate();
 
         } catch (Exception e) {

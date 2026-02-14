@@ -10,6 +10,7 @@
 /* ===================================================
    BODY
 =================================================== */
+
 body {
     font-family: 'Segoe UI', sans-serif;
     background: linear-gradient(135deg, lightgreen, green, #61db57);
@@ -352,4 +353,12 @@ button {
 
 button:hover {
     background: darkgreen;
+}
+
+.input-group select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
 }

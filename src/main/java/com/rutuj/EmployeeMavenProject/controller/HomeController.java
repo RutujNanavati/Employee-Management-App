@@ -1,9 +1,7 @@
 package com.rutuj.EmployeeMavenProject.controller;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import jakarta.servlet.http.HttpSession;
+import java.sql.*;
+import java.util.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -11,30 +9,85 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 public class HomeController {
 
-	
-	@GetMapping("/")
-	public String home() {
-	    return "redirect:/login";
-	}
+    @GetMapping("/")
+    public String home() {
+        return "redirect:/login";
+    }
 
+    // ================= REGISTER PAGE =================
     @GetMapping("/register")
-    public String showForm() {
+    public String showRegisterPage(
+            @RequestParam(value="countryId", required=false) Integer countryId,
+            @RequestParam(value="stateId", required=false) Integer stateId,
+            Model model) {
+
+        List<Map<String,Object>> countries = new ArrayList<>();
+        List<Map<String,Object>> states = new ArrayList<>();
+        List<Map<String,Object>> cities = new ArrayList<>();
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+
+            Connection con = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/employeedb",
+                    "root",
+                    "@Rutuj2005");
+
+            // LOAD COUNTRIES
+            PreparedStatement ps1 = con.prepareStatement("SELECT * FROM country");
+            ResultSet rs1 = ps1.executeQuery();
+
+            while(rs1.next()){
+                Map<String,Object> map = new HashMap<>();
+                map.put("id", rs1.getInt("id"));
+                map.put("name", rs1.getString("name"));
+                countries.add(map);
+            }
+
+            // LOAD STATES
+            if(countryId != null){
+                PreparedStatement ps2 = con.prepareStatement(
+                        "SELECT * FROM state WHERE country_id=?");
+                ps2.setInt(1, countryId);
+                ResultSet rs2 = ps2.executeQuery();
+
+                while(rs2.next()){
+                    Map<String,Object> map = new HashMap<>();
+                    map.put("id", rs2.getInt("id"));
+                    map.put("name", rs2.getString("name"));
+                    states.add(map);
+                }
+            }
+
+            // LOAD CITIES
+            if(stateId != null){
+                PreparedStatement ps3 = con.prepareStatement(
+                        "SELECT * FROM city WHERE state_id=?");
+                ps3.setInt(1, stateId);
+                ResultSet rs3 = ps3.executeQuery();
+
+                while(rs3.next()){
+                    Map<String,Object> map = new HashMap<>();
+                    map.put("id", rs3.getInt("id"));
+                    map.put("name", rs3.getString("name"));
+                    cities.add(map);
+                }
+            }
+
+            con.close();
+
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+
+        model.addAttribute("countries", countries);
+        model.addAttribute("states", states);
+        model.addAttribute("cities", cities);
+
         return "register";
     }
-    
-    @GetMapping("/success")
-    public String showSuccessPage(Model model) {
-        model.addAttribute("message", "Employee Successfully Registered!");
-        return "success";
-    }
-    
-//    @GetMapping("/employees")
-//    public String showemployeesPage(Model model)
-//    {
-//        model.addAttribute("message", "You are on Employees Page!");
-//    	return "employees";
-//    }
 
+    // ================= SAVE =================
     @PostMapping("/register")
     public String registerEmployee(
             @RequestParam String firstName,
@@ -42,7 +95,10 @@ public class HomeController {
             @RequestParam String username,
             @RequestParam String password,
             @RequestParam String address,
-            @RequestParam String contactNo) {
+            @RequestParam String contactNo,
+            @RequestParam(required=false) Integer countryId,
+            @RequestParam(required=false) Integer stateId,
+            @RequestParam(required=false) Integer cityId) {
 
         try {
 
@@ -53,7 +109,7 @@ public class HomeController {
                     "root",
                     "@Rutuj2005");
 
-            String sql = "INSERT INTO employees(firstName,lastName,username,password,address,contactNo) VALUES(?,?,?,?,?,?)";
+            String sql = "INSERT INTO employees(firstName,lastName,username,password,address,contactNo,country_id,state_id,city_id) VALUES(?,?,?,?,?,?,?,?,?)";
 
             PreparedStatement ps = con.prepareStatement(sql);
 
@@ -63,8 +119,13 @@ public class HomeController {
             ps.setString(4, password);
             ps.setString(5, address);
             ps.setString(6, contactNo);
+            ps.setInt(7, countryId);
+            ps.setInt(8, stateId);
+            ps.setInt(9, cityId);
 
             ps.executeUpdate();
+
+            con.close();
 
         } catch (Exception e) {
             e.printStackTrace();
