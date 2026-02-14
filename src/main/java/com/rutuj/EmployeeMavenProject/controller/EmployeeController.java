@@ -107,7 +107,6 @@ public class EmployeeController {
 
         return "editEmployee";
     }
-
     // ================= EDIT PAGE =================
     @GetMapping("/edit/{id}")
     public String editPage(@PathVariable int id, Model model) {
