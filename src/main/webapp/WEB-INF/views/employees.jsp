@@ -96,9 +96,9 @@
         </span>
         	<div id="genderDropdown" class="gender-dropdown">
             <a href="${pageContext.request.contextPath}/employees?gender=">All</a>
-            <a href="${pageContext.request.contextPath}/employees?gender=Male">Male</a>
-            <a href="${pageContext.request.contextPath}/employees?gender=Female">Female</a>
-            <a href="${pageContext.request.contextPath}/employees?gender=Other">Other</a>
+            <a href="${pageContext.request.contextPath}/employees?gender=Male">Male👨</a>
+            <a href="${pageContext.request.contextPath}/employees?gender=Female">Female👩</a>
+            <a href="${pageContext.request.contextPath}/employees?gender=Other">Other ⚧</a>
 	        </div>
 	    </div>
 	</th>
