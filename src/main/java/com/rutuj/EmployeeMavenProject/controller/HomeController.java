@@ -94,6 +94,7 @@ public class HomeController {
             @RequestParam String lastName,
             @RequestParam String username,
             @RequestParam String password,
+            @RequestParam String gender,
             @RequestParam String address,
             @RequestParam String contactNo,
             @RequestParam(required=false) Integer countryId,
@@ -109,7 +110,7 @@ public class HomeController {
                     "root",
                     "@Rutuj2005");
 
-            String sql = "INSERT INTO employees(firstName,lastName,username,password,address,contactNo,country_id,state_id,city_id) VALUES(?,?,?,?,?,?,?,?,?)";
+            String sql = "INSERT INTO employees(firstName,lastName,username,password,gender,address,contactNo,country_id,state_id,city_id) VALUES(?,?,?,?,?,?,?,?,?,?)";
 
             PreparedStatement ps = con.prepareStatement(sql);
 
@@ -117,11 +118,12 @@ public class HomeController {
             ps.setString(2, lastName);
             ps.setString(3, username);
             ps.setString(4, password);
-            ps.setString(5, address);
-            ps.setString(6, contactNo);
-            ps.setInt(7, countryId);
-            ps.setInt(8, stateId);
-            ps.setInt(9, cityId);
+            ps.setString(5, gender);
+            ps.setString(6, address);
+            ps.setString(7, contactNo);
+            ps.setInt(8, countryId);
+            ps.setInt(9, stateId);
+            ps.setInt(10, cityId);
 
             ps.executeUpdate();
 

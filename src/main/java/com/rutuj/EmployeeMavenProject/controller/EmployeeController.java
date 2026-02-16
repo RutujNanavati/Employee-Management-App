@@ -26,6 +26,7 @@ public class EmployeeController {
             @RequestParam(defaultValue = "5") int size,
             @RequestParam(defaultValue = "id") String sort,
             @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "") String gender,
             Model model) {
 
         List<Map<String, Object>> employeeList = new ArrayList<>();
@@ -41,24 +42,47 @@ public class EmployeeController {
         try (Connection con = getConnection()) {
 
             // Count total records
-            PreparedStatement countPs = con.prepareStatement(
-                    "SELECT COUNT(*) FROM employees WHERE firstName LIKE ? OR username LIKE ?");
-            countPs.setString(1, "%" + keyword + "%");
-            countPs.setString(2, "%" + keyword + "%");
-            ResultSet countRs = countPs.executeQuery();
+        	String countSql = "SELECT COUNT(*) FROM employees WHERE (firstName LIKE ? OR username LIKE ?)";
 
+        	if (!gender.isEmpty()) {
+        	    countSql += " AND gender = ?";
+        	}
+
+        	PreparedStatement countPs = con.prepareStatement(countSql);
+
+        	countPs.setString(1, "%" + keyword + "%");
+        	countPs.setString(2, "%" + keyword + "%");
+
+        	if (!gender.isEmpty()) {
+        	    countPs.setString(3, gender);
+        	}
+        	ResultSet countRs = countPs.executeQuery();
             if (countRs.next()) {
                 totalRecords = countRs.getInt(1);
             }
 
             // Fetch paginated data
-            PreparedStatement ps = con.prepareStatement(
-                    "SELECT * FROM employees WHERE firstName LIKE ? OR username LIKE ? " +
-                            "ORDER BY " + orderBy + " LIMIT ? OFFSET ?");
+            String sql = "SELECT * FROM employees WHERE (firstName LIKE ? OR username LIKE ?)";
+
+            if (!gender.isEmpty()) {
+                sql += " AND gender = ?";
+            }
+
+            sql += " ORDER BY " + orderBy + " LIMIT ? OFFSET ?";
+
+            PreparedStatement ps = con.prepareStatement(sql);
+
             ps.setString(1, "%" + keyword + "%");
             ps.setString(2, "%" + keyword + "%");
-            ps.setInt(3, size);
-            ps.setInt(4, offset);
+
+            int index = 3;
+
+            if (!gender.isEmpty()) {
+                ps.setString(index++, gender);
+            }
+
+            ps.setInt(index++, size);
+            ps.setInt(index, offset);
 
             ResultSet rs = ps.executeQuery();
 
@@ -68,6 +92,7 @@ public class EmployeeController {
                 emp.put("firstName", rs.getString("firstName"));
                 emp.put("lastName", rs.getString("lastName"));
                 emp.put("username", rs.getString("username"));
+                emp.put("gender", rs.getString("gender"));
                 emp.put("contactNo", rs.getString("contactNo"));
                 employeeList.add(emp);
             }
@@ -84,6 +109,8 @@ public class EmployeeController {
         model.addAttribute("size", size);
         model.addAttribute("sort", sort);
         model.addAttribute("keyword", keyword);
+        model.addAttribute("selectedGender", gender);
+
 
         return "employees";
     }
@@ -98,6 +125,7 @@ public class EmployeeController {
         model.addAttribute("firstName", "");
         model.addAttribute("lastName", "");
         model.addAttribute("username", "");
+        model.addAttribute("gender", "");
         model.addAttribute("address", "");
         model.addAttribute("contactNo", "");
         model.addAttribute("selectedCountry", "");
@@ -124,9 +152,9 @@ public class EmployeeController {
                 model.addAttribute("firstName", rs.getString("firstName"));
                 model.addAttribute("lastName", rs.getString("lastName"));
                 model.addAttribute("username", rs.getString("username"));
+                model.addAttribute("gender", rs.getString("gender"));
                 model.addAttribute("address", rs.getString("address"));
                 model.addAttribute("contactNo", rs.getString("contactNo"));
-
                 model.addAttribute("selectedCountry", rs.getInt("country_id"));
                 model.addAttribute("selectedState", rs.getInt("state_id"));
                 model.addAttribute("selectedCity", rs.getInt("city_id"));
@@ -147,6 +175,7 @@ public class EmployeeController {
             @RequestParam String firstName,
             @RequestParam String lastName,
             @RequestParam String username,
+            @RequestParam String gender,
             @RequestParam String address,
             @RequestParam String contactNo,
             @RequestParam Integer countryId,
@@ -155,16 +184,17 @@ public class EmployeeController {
 
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(
-                     "INSERT INTO employees(firstName,lastName,username,address,contactNo,country_id,state_id,city_id) VALUES(?,?,?,?,?,?,?,?)")) {
+"INSERT INTO employees(firstName,lastName,username,gender,address,contactNo,country_id,state_id,city_id) VALUES(?,?,?,?,?,?,?,?,?)")) {
 
             ps.setString(1, firstName);
             ps.setString(2, lastName);
             ps.setString(3, username);
-            ps.setString(4, address);
-            ps.setString(5, contactNo);
-            ps.setInt(6, countryId);
-            ps.setInt(7, stateId);
-            ps.setInt(8, cityId);
+            ps.setString(4, gender);
+            ps.setString(5, address);
+            ps.setString(6, contactNo);
+            ps.setInt(7, countryId);
+            ps.setInt(8, stateId);
+            ps.setInt(9, cityId);
 
             ps.executeUpdate();
 
@@ -182,6 +212,7 @@ public class EmployeeController {
             @RequestParam String firstName,
             @RequestParam String lastName,
             @RequestParam String username,
+            @RequestParam String gender,
             @RequestParam String address,
             @RequestParam String contactNo,
             @RequestParam Integer countryId,
@@ -190,17 +221,18 @@ public class EmployeeController {
 
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(
-                     "UPDATE employees SET firstName=?, lastName=?, username=?, address=?, contactNo=?, country_id=?, state_id=?, city_id=? WHERE id=?")) {
+                     "UPDATE employees SET firstName=?, lastName=?, username=?, gender=?, address=?, contactNo=?, country_id=?, state_id=?, city_id=? WHERE id=?")) {
 
             ps.setString(1, firstName);
-            ps.setString(2, lastName);
+            ps.setString(2, lastName); 
             ps.setString(3, username);
-            ps.setString(4, address);
-            ps.setString(5, contactNo);
-            ps.setInt(6, countryId);
-            ps.setInt(7, stateId);
-            ps.setInt(8, cityId);
-            ps.setInt(9, id);
+            ps.setString(4, gender);
+            ps.setString(5, address);
+            ps.setString(6, contactNo);
+            ps.setInt(7, countryId);
+            ps.setInt(8, stateId);
+            ps.setInt(9, cityId);
+            ps.setInt(10, id);
 
             ps.executeUpdate();
 

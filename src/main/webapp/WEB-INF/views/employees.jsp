@@ -68,6 +68,7 @@
             <option value="username" ${sort=='username'?'selected':''}>Username</option>
             <option value="latest" ${sort=='latest'?'selected':''}>Latest</option>
         </select>
+        
 
         <!-- Reset -->
         <button type="button"
@@ -79,11 +80,7 @@
 
     </form>
 </div>
-
-
-
 </div>
-
 
 <!-- Employee Table -->
  
@@ -92,6 +89,20 @@
     <th>ID</th>
     <th>Name</th>
     <th>Username</th>
+    <th class="gender-header">
+    	<div class="gender-filter">
+        <span onclick="toggleGenderDropdown()" class="gender-title">
+            Gender▼
+        </span>
+        	<div id="genderDropdown" class="gender-dropdown">
+            <a href="${pageContext.request.contextPath}/employees?gender=">All</a>
+            <a href="${pageContext.request.contextPath}/employees?gender=Male">Male</a>
+            <a href="${pageContext.request.contextPath}/employees?gender=Female">Female</a>
+            <a href="${pageContext.request.contextPath}/employees?gender=Other">Other</a>
+	        </div>
+	    </div>
+	</th>
+
     <th>Contact</th>
     <th>Action</th>
 </tr>
@@ -101,6 +112,14 @@
     <td>${emp.id}</td>
     <td>${emp.firstName} ${emp.lastName}</td>
     <td>${emp.username}</td>
+    <td>
+    <c:choose>
+        <c:when test="${emp.gender == 'Male'}">👨 Male</c:when>
+        <c:when test="${emp.gender == 'Female'}">👩 Female</c:when>
+        <c:when test="${emp.gender == 'Other' }">⚧ Other</c:when>
+    </c:choose>
+	</td>
+
     <td>${emp.contactNo}</td>
     <td>
         <a class="edit-btn" href="${pageContext.request.contextPath}/employees/edit/${emp.id}">Edit</a>
@@ -122,21 +141,21 @@
 <div class="pagination">
 
     <c:if test="${currentPage > 1}">
-        <a href="${pageContext.request.contextPath}/employees?page=${currentPage-1}&size=${size}&sort=${sort}&keyword=${keyword}"
+        <a href="${pageContext.request.contextPath}/employees?page=${currentPage-1}&size=${size}&sort=${sort}&keyword=${keyword}&gender=${selectedGender}"
            class="page-btn">
             Previous
         </a>
     </c:if>
 
     <c:forEach begin="1" end="${totalPages}" var="i">
-        <a href="${pageContext.request.contextPath}/employees?page=${i}&size=${size}&sort=${sort}&keyword=${keyword}"
+        <a href="${pageContext.request.contextPath}/employees?page=${i}&size=${size}&sort=${sort}&keyword=${keyword}&gender=${selectedGender}"
            class="page-btn ${i == currentPage ? 'active-page' : ''}">
             ${i}
         </a>
     </c:forEach>
 
     <c:if test="${currentPage < totalPages}">
-        <a href="${pageContext.request.contextPath}/employees?page=${currentPage+1}&size=${size}&sort=${sort}&keyword=${keyword}"
+        <a href="${pageContext.request.contextPath}/employees?page=${currentPage+1}&size=${size}&sort=${sort}&&keyword=${keyword}&gender=${selectedGender}"
            class="page-btn">
             Next
         </a>
@@ -144,5 +163,20 @@
     </c:if>
 
 </div>
+
+<script>
+function toggleGenderDropdown() {
+    var dropdown = document.getElementById("genderDropdown");
+    dropdown.style.display =
+        dropdown.style.display === "block" ? "none" : "block";
+}
+
+window.onclick = function(e) {
+    if (!e.target.matches('.gender-title')) {
+        document.getElementById("genderDropdown").style.display = "none";
+    }
+}
+</script>
+
 
 

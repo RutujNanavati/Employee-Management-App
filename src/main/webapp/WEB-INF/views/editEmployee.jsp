@@ -33,6 +33,36 @@
     <div class="input-group">
         <input type="text" name="username" value="${username}" placeholder="Username" required>
     </div>
+    
+<div class="input-group">
+    <div class="input-group gender-row">
+
+        <label class="gender-label">Gender:</label>
+
+        <div class="gender-options">
+			<label>
+			    <input type="radio" name="gender" value="Male"
+			    ${gender != null && gender.equals("Male") ? "checked" : ""}>
+			    Male
+			</label>
+			
+			<label>
+			    <input type="radio" name="gender" value="Female"
+			    ${gender != null && gender.equals("Female") ? "checked" : ""}>
+			    Female
+			</label>
+			
+			<label>
+			    <input type="radio" name="gender" value="Other"
+			    ${gender != null && gender.equals("Other") ? "checked" : ""}>
+			    Other
+			</label>
+        </div>
+
+    </div>
+</div>
+
+    
 
     <div class="input-group">
         <input type="text" name="address" value="${address}" placeholder="Address" required>
@@ -69,100 +99,117 @@
 
 <script>
 
+let allCities = [];
 let selectedCountry = "${selectedCountry}";
 let selectedState = "${selectedState}";
 let selectedCity = "${selectedCity}";
 
-document.addEventListener("DOMContentLoaded", function(){
+document.addEventListener("DOMContentLoaded", async function(){
 
+    await loadAllCities();
     loadCountries();
 
     document.getElementById("country").addEventListener("change", function(){
+        selectedState = null;
+        selectedCity = null;
         loadStates(this.value);
+        resetCity();
     });
 
     document.getElementById("state").addEventListener("change", function(){
+        selectedCity = null;
         loadCities(this.value);
     });
 
 });
 
-function loadCountries(){
+async function loadAllCities(){
+    let res = await fetch("/EmployeeMavenProject/location/allCities");
+    allCities = await res.json();
+}
 
+function loadCountries(){
     fetch("/EmployeeMavenProject/location/countries")
     .then(res => res.json())
     .then(data => {
 
         let dropdown = document.getElementById("country");
+        dropdown.innerHTML = "<option>Select Country</option>";
 
-        dropdown.innerHTML = "<option value=''>Select Country</option>";
-
-        data.forEach(function(c){
+        data.forEach(c=>{
             let option = document.createElement("option");
             option.value = c.id;
             option.text = c.name;
 
-            if(c.id == selectedCountry){
+            if(String(c.id) === String(selectedCountry)){
                 option.selected = true;
+                loadStates(c.id);
             }
 
             dropdown.appendChild(option);
         });
 
-        if(selectedCountry){
-            loadStates(selectedCountry);
-        }
     });
 }
 
 function loadStates(countryId){
+
+    if(!countryId){
+        document.getElementById("state").innerHTML = "<option>Select State</option>";
+        resetCity();
+        return;
+    }
 
     fetch("/EmployeeMavenProject/location/states/" + countryId)
     .then(res => res.json())
     .then(data => {
 
         let stateDropdown = document.getElementById("state");
-        stateDropdown.innerHTML = "<option value=''>Select State</option>";
+        stateDropdown.innerHTML = "<option>Select State</option>";
 
-        data.forEach(function(s){
+        data.forEach(s=>{
             let option = document.createElement("option");
             option.value = s.id;
             option.text = s.name;
 
-            if(s.id == selectedState){
+            if(String(s.id) === String(selectedState)){
                 option.selected = true;
+                loadCities(s.id);
             }
 
             stateDropdown.appendChild(option);
         });
 
-        if(selectedState){
-            loadCities(selectedState);
-        }
     });
 }
 
 function loadCities(stateId){
 
-    fetch("/EmployeeMavenProject/location/cities/" + stateId)
-    .then(res => res.json())
-    .then(data => {
+    let cityDropdown = document.getElementById("city");
+    cityDropdown.innerHTML = "<option>Select City</option>";
 
-        let cityDropdown = document.getElementById("city");
-        cityDropdown.innerHTML = "<option value=''>Select City</option>";
+    if(!stateId) return;
 
-        data.forEach(function(c){
-            let option = document.createElement("option");
-            option.value = c.id;
-            option.text = c.name;
+    let filtered = allCities.filter(c =>
+        String(c.state_id) === String(stateId)
+    );
 
-            if(c.id == selectedCity){
-                option.selected = true;
-            }
+    filtered.forEach(c=>{
+        let option = document.createElement("option");
+        option.value = c.id;
+        option.text = c.name;
 
-            cityDropdown.appendChild(option);
-        });
+        if(String(c.id) === String(selectedCity)){
+            option.selected = true;
+        }
+
+        cityDropdown.appendChild(option);
     });
 }
 
+function resetCity(){
+    document.getElementById("city").innerHTML = "<option>Select City</option>";
+}
+
 </script>
+

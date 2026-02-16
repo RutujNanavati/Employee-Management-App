@@ -79,6 +79,7 @@ body {
 
 .container {
     width: 400px;
+    margin-top: 20px;
     text-align: center;
 }
 
@@ -329,8 +330,9 @@ body {
 /* ===================================================
    LOGIN / REGISTER FORM
 =================================================== */
+/* Input group same spacing */
 .input-group {
-    margin-bottom: 15px;
+    margin-bottom: 18px;
 }
 
 .input-group input {
@@ -362,3 +364,92 @@ button:hover {
     border: 1px solid #ccc;
     font-size: 14px;
 }
+
+
+
+/* Gender full container like input box */
+.gender-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 18px;
+    padding: 10px 12px;
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+
+
+/* Gender title */
+.gender-label {
+    font-size: 14px;
+    font-weight: 500;	
+    color: #000000;
+    min-width: 80px;   /* keeps alignment fixed */
+    margin-left:-20px;
+}
+
+/* Radio group spacing */
+.gender-options {
+    display: flex;
+    align-items: center;
+    gap: 20px;   /* space between Male Female Other */
+    margin-left:20px;
+}
+
+/* Individual option */
+.gender-options label {
+    display: flex;
+    align-items: center;
+    gap: 6px;   /* space between radio and text */
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    cursor: pointer;
+}
+
+/* Radio styling */
+.gender-options input[type="radio"] {
+    accent-color: darkgreen;
+    transform: scale(1);
+}
+
+/* Gender filter in employee list table*/
+
+.gender-header {
+    position: relative;
+}
+
+.gender-filter {
+    position: relative;
+    display: inline-block;
+}
+
+.gender-title {
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.gender-dropdown {
+    display: none;
+    position: absolute;
+    top: 25px;
+    left: 0;
+    background: white;
+    min-width: 120px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
+    z-index: 1000;
+}
+
+.gender-dropdown a {
+    display: block;
+    padding: 8px 12px;
+    text-decoration: none;
+    color: #333;
+}
+
+.gender-dropdown a:hover {
+    background: #f2f2f2;
+}
+

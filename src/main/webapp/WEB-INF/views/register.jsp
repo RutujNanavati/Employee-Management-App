@@ -27,6 +27,33 @@
         <div class="input-group">
             <input type="password" name="password" placeholder="Password" required>
         </div>
+        
+        <div class="input-group">
+		<div class="input-group gender-row">
+		    
+		    <label class="gender-label">Gender:</label>
+		
+		    <div class="gender-options">
+		        <label>
+		            <input type="radio" name="gender" value="Male" required>
+		            Male
+		        </label>
+		
+		        <label>
+		            <input type="radio" name="gender" value="Female">
+		            Female
+		        </label>
+		
+		        <label>
+		            <input type="radio" name="gender" value="Other">
+		            Other
+		        </label>
+		    </div>
+		
+		</div>
+		</div>
+
+        
 
         <div class="input-group">
             <input type="text" name="address" placeholder="Address">
@@ -64,25 +91,29 @@
 
 <script>
 
-document.addEventListener("DOMContentLoaded", function(){
+let allCities = [];
 
+document.addEventListener("DOMContentLoaded", async function(){
+
+    await loadAllCities();   
     loadCountries();
 
     document.getElementById("country").addEventListener("change", function(){
-        let countryId = this.value;
-        if(countryId){
-            loadStates(countryId);
-        }
+        loadStates(this.value);
+        document.getElementById("city").innerHTML = "<option>Select City</option>";
     });
 
     document.getElementById("state").addEventListener("change", function(){
-        let stateId = this.value;
-        if(stateId){
-            loadCities(stateId);
-        }
+        loadCities(this.value);
     });
 
 });
+
+async function loadAllCities(){
+    let res = await fetch("/EmployeeMavenProject/location/allCities");
+    allCities = await res.json();
+    console.log("Cities Loaded:", allCities);
+}
 
 function loadCountries(){
 
@@ -119,7 +150,7 @@ function loadStates(countryId){
         stateDropdown.innerHTML = "<option value=''>Select State</option>";
 
         document.getElementById("city").innerHTML = "<option value=''>Select City</option>";
-        document.getElementById("city").disabled = true;
+        document.getElementById("city").disabled = false;
 
         data.forEach(function(s){
 
@@ -134,8 +165,27 @@ function loadStates(countryId){
     .catch(err => console.log("State error:", err));
 }
 
-
 function loadCities(stateId){
+
+    let cityDropdown = document.getElementById("city");
+    cityDropdown.innerHTML = "<option>Select City</option>";
+
+    if(!stateId) return;
+
+    let filtered = allCities.filter(c => String(c.state_id) === String(stateId));
+
+    console.log("Filtered Cities:", filtered);
+
+    filtered.forEach(c=>{
+        let option = document.createElement("option");
+        option.value = c.id;
+        option.text = c.name;
+        cityDropdown.appendChild(option);
+    });
+}
+
+
+/* function loadCities(stateId){
 
     fetch("/EmployeeMavenProject/location/cities/" + stateId)
     .then(res => res.json())
@@ -151,12 +201,12 @@ function loadCities(stateId){
             option.value = c.id;
             option.text = c.name;
 
-            cityDropdown.appendChild(option);
+            cityDropdown.appendChild(option);	
         });
 
     })
     .catch(err => console.log("City error:", err));
-}
+} */
 
 
 </script>

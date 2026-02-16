@@ -65,23 +65,21 @@ public class LocationController {
 
         return list;
     }
-
-    @GetMapping("/cities/{stateId}")
-    public List<Map<String,Object>> getCities(@PathVariable int stateId){
-
+    
+    @GetMapping("/allCities")
+    public List<Map<String,Object>> getAllCities(){
         List<Map<String,Object>> list = new ArrayList<>();
 
         try(Connection con = getConnection();
             PreparedStatement ps =
-                con.prepareStatement("SELECT * FROM city WHERE state_id=?")) {
-
-            ps.setInt(1, stateId);
-            ResultSet rs = ps.executeQuery();
+                con.prepareStatement("SELECT * FROM city");
+            ResultSet rs = ps.executeQuery()) {
 
             while(rs.next()){
                 Map<String,Object> map = new HashMap<>();
                 map.put("id", rs.getInt("id"));
                 map.put("name", rs.getString("name"));
+                map.put("state_id", rs.getInt("state_id"));
                 list.add(map);
             }
 
@@ -91,4 +89,23 @@ public class LocationController {
 
         return list;
     }
+
+	/*
+	 * @GetMapping("/cities/{stateId}") public List<Map<String,Object>>
+	 * getCities(@PathVariable int stateId){
+	 * 
+	 * List<Map<String,Object>> list = new ArrayList<>();
+	 * 
+	 * try(Connection con = getConnection(); PreparedStatement ps =
+	 * con.prepareStatement("SELECT * FROM city WHERE state_id=?")) {
+	 * 
+	 * ps.setInt(1, stateId); ResultSet rs = ps.executeQuery();
+	 * 
+	 * while(rs.next()){ Map<String,Object> map = new HashMap<>(); map.put("id",
+	 * rs.getInt("id")); map.put("name", rs.getString("name")); list.add(map); }
+	 * 
+	 * } catch(Exception e){ e.printStackTrace(); }
+	 * 
+	 * return list; }
+	 */
 }
