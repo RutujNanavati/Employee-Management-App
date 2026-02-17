@@ -102,7 +102,6 @@
 	        </div>
 	    </div>
 	</th>
-
     <th>Contact</th>
     <th>Action</th>
 </tr>
@@ -124,10 +123,11 @@
     <td>
         <a class="edit-btn" href="${pageContext.request.contextPath}/employees/edit/${emp.id}">Edit</a>
         <a class="delete-btn"
-   href="${pageContext.request.contextPath}/employees/delete/${emp.id}"
-   onclick="return confirm('⚠️ This action cannot be undone. Do you really want to delete Employee?');">
+   href="#"
+   onclick="openDeleteModal('${pageContext.request.contextPath}/employees/delete/${emp.id}')">
    Delete
 </a>
+
 
     </td>
 </tr>
@@ -135,6 +135,20 @@
 
 </table>
 </div>
+
+<!-- DELETE MODAL -->
+<div id="deleteModal" class="modal-overlay">
+    <div class="modal-box">
+        <h3>⚠️ Confirm Deletion</h3>
+        <p>This action cannot be undone.<br>Do you really want to delete this employee?</p>
+
+        <div class="modal-buttons">
+            <button class="cancel-btn" onclick="closeDeleteModal()">Cancel</button>
+            <a id="confirmDeleteBtn" class="confirm-btn">Delete</a>
+        </div>
+    </div>
+</div>
+
 
 <!-- PAGINATION -->
 
@@ -176,6 +190,30 @@ window.onclick = function(e) {
         document.getElementById("genderDropdown").style.display = "none";
     }
 }
+
+
+//Delete Function//     
+
+let deleteUrl = "";
+
+function openDeleteModal(url) {
+    deleteUrl = url;
+    document.getElementById("confirmDeleteBtn").href = deleteUrl;
+    document.getElementById("deleteModal").style.display = "flex";
+}
+
+function closeDeleteModal() {
+    document.getElementById("deleteModal").style.display = "none";
+}
+
+window.onclick = function(e) {
+    const modal = document.getElementById("deleteModal");
+    if (e.target === modal) {
+        closeDeleteModal();
+    }
+}
+
+
 </script>
 
 

@@ -36,17 +36,17 @@
 		    <div class="gender-options">
 		        <label>
 		            <input type="radio" name="gender" value="Male" required>
-		            Male
+		           👨Male
 		        </label>
 		
 		        <label>
 		            <input type="radio" name="gender" value="Female">
-		            Female
+		           👩Female
 		        </label>
 		
 		        <label>
 		            <input type="radio" name="gender" value="Other">
-		            Other
+		            ⚧ Other
 		        </label>
 		    </div>
 		

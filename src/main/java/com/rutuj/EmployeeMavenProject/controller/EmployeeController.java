@@ -33,7 +33,7 @@ public class EmployeeController {
         int totalRecords = 0;
         int offset = (page - 1) * size;
 
-        String orderBy = "id ASC";   // default = latest
+        String orderBy = "id ASC";
 
         if (sort.equals("firstName")) orderBy = "firstName ASC";
         if (sort.equals("username")) orderBy = "username ASC";
@@ -41,41 +41,54 @@ public class EmployeeController {
 
         try (Connection con = getConnection()) {
 
-            // Count total records
-        	String countSql = "SELECT COUNT(*) FROM employees WHERE (firstName LIKE ? OR username LIKE ?)";
+            // 🔥 MULTI-WORD SEARCH SUPPORT
+            String[] words = keyword.trim().isEmpty()
+                    ? new String[0]
+                    : keyword.trim().split("\\s+");
 
-        	if (!gender.isEmpty()) {
-        	    countSql += " AND gender = ?";
-        	}
+            StringBuilder where = new StringBuilder(" WHERE 1=1 ");
+            List<String> params = new ArrayList<>();
 
-        	PreparedStatement countPs = con.prepareStatement(countSql);
+            for (String word : words) {
+                where.append(" AND (firstName LIKE ? OR lastName LIKE ? OR username LIKE ?) ");
+                params.add("%" + word + "%");
+                params.add("%" + word + "%");
+                params.add("%" + word + "%");
+            }
 
-        	countPs.setString(1, "%" + keyword + "%");
-        	countPs.setString(2, "%" + keyword + "%");
+            if (!gender.isEmpty()) {
+                where.append(" AND gender = ? ");
+            }
 
-        	if (!gender.isEmpty()) {
-        	    countPs.setString(3, gender);
-        	}
-        	ResultSet countRs = countPs.executeQuery();
+            // ================= COUNT QUERY =================
+            String countSql = "SELECT COUNT(*) FROM employees " + where;
+
+            PreparedStatement countPs = con.prepareStatement(countSql);
+
+            int index = 1;
+            for (String param : params) {
+                countPs.setString(index++, param);
+            }
+
+            if (!gender.isEmpty()) {
+                countPs.setString(index++, gender);
+            }
+
+            ResultSet countRs = countPs.executeQuery();
             if (countRs.next()) {
                 totalRecords = countRs.getInt(1);
             }
 
-            // Fetch paginated data
-            String sql = "SELECT * FROM employees WHERE (firstName LIKE ? OR username LIKE ?)";
-
-            if (!gender.isEmpty()) {
-                sql += " AND gender = ?";
-            }
-
-            sql += " ORDER BY " + orderBy + " LIMIT ? OFFSET ?";
+            // ================= SELECT QUERY =================
+            String sql = "SELECT * FROM employees " + where +
+                    " ORDER BY " + orderBy + " LIMIT ? OFFSET ?";
 
             PreparedStatement ps = con.prepareStatement(sql);
 
-            ps.setString(1, "%" + keyword + "%");
-            ps.setString(2, "%" + keyword + "%");
-
-            int index = 3;
+            index = 1;
+            for (String param : params) {
+                ps.setString(index++, param);
+            }
 
             if (!gender.isEmpty()) {
                 ps.setString(index++, gender);
@@ -111,9 +124,9 @@ public class EmployeeController {
         model.addAttribute("keyword", keyword);
         model.addAttribute("selectedGender", gender);
 
-
         return "employees";
     }
+
 
 
 

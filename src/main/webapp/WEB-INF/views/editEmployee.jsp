@@ -43,19 +43,19 @@
 			<label>
 			    <input type="radio" name="gender" value="Male"
 			    ${gender != null && gender.equals("Male") ? "checked" : ""}>
-			    Male
+			    👨Male
 			</label>
 			
 			<label>
 			    <input type="radio" name="gender" value="Female"
 			    ${gender != null && gender.equals("Female") ? "checked" : ""}>
-			    Female
+			    👩Female
 			</label>
 			
 			<label>
 			    <input type="radio" name="gender" value="Other"
 			    ${gender != null && gender.equals("Other") ? "checked" : ""}>
-			    Other
+			    ⚧ Other
 			</label>
         </div>
 
