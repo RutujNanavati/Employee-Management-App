@@ -124,6 +124,9 @@ body {
 
 .logout-btn:hover{ background: darkred; }
 
+/* Dashboard cards and pie chart */
+
+
 /* ===================================================
    HEADER ROW (Employee List Title + Add)
 =================================================== */
@@ -223,7 +226,7 @@ body {
 
 /* RESET BUTTON */
 .reset-btn {
-    padding: 10px 12px;
+    padding: 10px px;
     background: red;
     color: white;
     border: none;
@@ -519,3 +522,5 @@ button:hover {
     from { transform: scale(0.9); opacity: 0; }
     to { transform: scale(1); opacity: 1; }
 }
+
+

@@ -19,28 +19,45 @@ public class DashboardController {
     }
 
     @GetMapping("/dashboard")
-    public String dashboard(Model model, HttpSession session) {
+    public String showDashboard(Model model) {
 
-        if (session.getAttribute("user") == null) {
-            return "redirect:/login";
-        }
+        int total = 0;
+        int male = 0;
+        int female = 0;
+        int other = 0;
 
-        int totalEmployees = 0;
+        try (Connection con = getConnection()) {
 
-        try (Connection con = getConnection();
-             Statement st = con.createStatement();
-             ResultSet rs = st.executeQuery("SELECT COUNT(*) FROM employees")) {
+            // Total employees
+            PreparedStatement ps1 = con.prepareStatement(
+                    "SELECT COUNT(*) FROM employees");
+            ResultSet rs1 = ps1.executeQuery();
+            if (rs1.next()) {
+                total = rs1.getInt(1);
+            }
 
-            if (rs.next()) {
-                totalEmployees = rs.getInt(1);
+            // Gender count
+            PreparedStatement ps2 = con.prepareStatement(
+                    "SELECT gender, COUNT(*) as count FROM employees GROUP BY gender");
+            ResultSet rs2 = ps2.executeQuery();
+
+            while (rs2.next()) {
+                String g = rs2.getString("gender");
+                int count = rs2.getInt("count");
+
+                if ("Male".equalsIgnoreCase(g)) male = count;
+                if ("Female".equalsIgnoreCase(g)) female = count;
+                if ("Other".equalsIgnoreCase(g)) other = count;
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        model.addAttribute("username", session.getAttribute("user"));
-        model.addAttribute("totalEmployees", totalEmployees);
+        model.addAttribute("total", total);
+        model.addAttribute("male", male);
+        model.addAttribute("female", female);
+        model.addAttribute("other", other);
 
         return "dashboard";
     }

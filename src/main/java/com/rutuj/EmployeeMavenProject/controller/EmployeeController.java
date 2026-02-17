@@ -6,6 +6,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpSession;
+
 @Controller
 @RequestMapping("/employees")
 public class EmployeeController {
@@ -151,7 +153,13 @@ public class EmployeeController {
 
     // ================= EDIT PAGE =================
     @GetMapping("/edit/{id}")
-    public String editPage(@PathVariable int id, Model model) {
+    public String editPage(@PathVariable int id, Model model, HttpSession session) {
+    	
+        String role = (String) session.getAttribute("role");
+        if (role == null || 
+        	       (!"ADMIN".equals(role) && !"HR".equals(role))) {
+        	        return "redirect:/accessDenied";
+        	    }
 
         try (Connection con = getConnection();
              PreparedStatement ps =
@@ -258,7 +266,14 @@ public class EmployeeController {
 
     // ================= DELETE =================
     @GetMapping("/delete/{id}")
-    public String deleteEmployee(@PathVariable int id) {
+    public String deleteEmployee(@PathVariable int id,HttpSession session) {
+    	
+        String role = (String) session.getAttribute("role");
+        
+        if (!"ADMIN".equals(role)) {
+            return "redirect:/accessDenied";
+        }
+
 
         try (Connection con = getConnection();
              PreparedStatement ps =

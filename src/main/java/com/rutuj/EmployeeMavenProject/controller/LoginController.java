@@ -36,6 +36,7 @@ public class LoginController {
     public String processSignup(
             @RequestParam String username,
             @RequestParam String password,
+            @RequestParam(defaultValue = "ADMIN") String role,
             Model model) {
 
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
@@ -43,20 +44,20 @@ public class LoginController {
 
         try (Connection con = getConnection();
              PreparedStatement ps =
-                     con.prepareStatement("INSERT INTO admin(username,password) VALUES(?,?)")) {
+                     con.prepareStatement(
+                         "INSERT INTO admin(username,password,role) VALUES(?,?,?)")) {
 
             ps.setString(1, username);
             ps.setString(2, hashedPassword);
-            ps.executeUpdate();
+            ps.setString(3, role);
 
-           
+            ps.executeUpdate();
 
         } catch (Exception e) {
             e.printStackTrace();
             model.addAttribute("error", "Signup Failed");
             return "signup";
         }
-
 
         return "redirect:/login";
     }
@@ -81,10 +82,24 @@ public class LoginController {
             if (rs.next()) {
 
                 String dbPassword = rs.getString("password");
+                String role = rs.getString("role");
 
                 if (encoder.matches(password, dbPassword)) {
+
+                    // 🔥 Store in session
                     session.setAttribute("user", username);
-                    return "redirect:/dashboard";
+                    session.setAttribute("role", role);
+
+                    // 🔥 Role based redirect
+                    if ("ADMIN".equalsIgnoreCase(role)) {
+                        return "redirect:/dashboard";
+                    } 
+                    else if ("HR".equalsIgnoreCase(role)) {
+                        return "redirect:/dashboard";
+                    } 
+                    else if ("EMPLOYEE".equalsIgnoreCase(role)) {
+                        return "redirect:/employees";
+                    }
                 }
             }
 

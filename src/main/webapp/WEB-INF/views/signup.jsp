@@ -8,6 +8,8 @@
 
     <form action="${pageContext.request.contextPath}/signup" method="post">
 
+
+
         <div class="input-group">
             <input type="text" name="username" placeholder="Username" required>
         </div>
@@ -15,6 +17,14 @@
         <div class="input-group">
             <input type="password" name="password" placeholder="Password" required>
         </div>
+        
+        <div class="input-group">
+		    <select name="role">
+		        <option value="ADMIN">ADMIN</option>
+		        <option value="HR">HR</option>
+		        <option value="EMPLOYEE">EMPLOYEE</option>
+		    </select>
+		</div>
 
         <button type="submit">Signup</button>
 
