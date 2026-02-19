@@ -2,9 +2,12 @@ package com.rutuj.EmployeeMavenProject.controller;
 
 import java.sql.*;
 import java.util.*;
+
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpSession;
 
@@ -29,7 +32,18 @@ public class EmployeeController {
             @RequestParam(defaultValue = "id") String sort,
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "") String gender,
-            Model model) {
+            Model model, HttpSession session) {
+    	
+    	String role = (String) session.getAttribute("role");
+    	
+    	if(role == null) {
+    		return "redirect:/login";
+    	}
+    	
+    	if("EMPLOYEE".equals(role)) {
+    		Integer empId = (Integer) session.getAttribute("employeeId");
+    		return "redirect:/employees/profile/"+empId;
+    	}
 
         List<Map<String, Object>> employeeList = new ArrayList<>();
         int totalRecords = 0;
@@ -128,8 +142,77 @@ public class EmployeeController {
 
         return "employees";
     }
+    
+ // ================= PROFILE PAGE =================
+    @GetMapping("/profile/{id}")
+    public String viewProfile(@PathVariable int id,
+                              Model model,
+                              HttpSession session) {
+
+        String sessionRole = (String) session.getAttribute("role");
+
+        if (sessionRole == null) {
+            return "redirect:/login";
+        }
+
+        // 🔥 If EMPLOYEE → only allow own profile
+        if ("EMPLOYEE".equals(sessionRole)) {
+            Integer sessionId = (Integer) session.getAttribute("employeeId");
+            if (sessionId == null || sessionId != id) {
+                return "redirect:/accessDenied";
+            }
+        }
+
+        try (Connection con = getConnection()) {
+
+            // 🔥 First check employees table
+            PreparedStatement empPs =
+                    con.prepareStatement("SELECT * FROM employees WHERE id=?");
+
+            empPs.setInt(1, id);
+            ResultSet empRs = empPs.executeQuery();
+
+            if (empRs.next()) {
+
+                model.addAttribute("firstName", empRs.getString("firstName"));
+                model.addAttribute("lastName", empRs.getString("lastName"));
+                model.addAttribute("username", empRs.getString("username"));
+                model.addAttribute("gender", empRs.getString("gender"));
+                model.addAttribute("address", empRs.getString("address"));
+                model.addAttribute("contactNo", empRs.getString("contactNo"));
+                model.addAttribute("profileRole", "EMPLOYEE"); // 🔥 Correct role
+                model.addAttribute("photo", empRs.getString("photo"));
 
 
+                return "profile";
+            }
+
+            // 🔥 If not employee, check admin table
+            PreparedStatement adminPs =
+                    con.prepareStatement("SELECT * FROM admin WHERE id=?");
+
+            adminPs.setInt(1, id);
+            ResultSet adminRs = adminPs.executeQuery();
+
+            if (adminRs.next()) {
+
+                model.addAttribute("firstName", adminRs.getString("username"));
+                model.addAttribute("lastName", "");
+                model.addAttribute("username", adminRs.getString("username"));
+                model.addAttribute("gender", "-");
+                model.addAttribute("address", "-");
+                model.addAttribute("contactNo", "-");
+                model.addAttribute("profileRole", adminRs.getString("role")); // 🔥 REAL ROLE
+
+                return "profile";
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "redirect:/employees";
+    }
 
 
     // ================= ADD PAGE =================
@@ -193,31 +276,56 @@ public class EmployeeController {
     // ================= SAVE =================
     @PostMapping("/save")
     public String saveEmployee(
+
             @RequestParam String firstName,
             @RequestParam String lastName,
             @RequestParam String username,
+            @RequestParam String password,
             @RequestParam String gender,
             @RequestParam String address,
             @RequestParam String contactNo,
             @RequestParam Integer countryId,
             @RequestParam Integer stateId,
-            @RequestParam Integer cityId) {
+            @RequestParam Integer cityId,
+            @RequestParam("photoFile") MultipartFile photoFile
 
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(
-"INSERT INTO employees(firstName,lastName,username,gender,address,contactNo,country_id,state_id,city_id) VALUES(?,?,?,?,?,?,?,?,?)")) {
+    ) {
 
-            ps.setString(1, firstName);
-            ps.setString(2, lastName);
-            ps.setString(3, username);
-            ps.setString(4, gender);
-            ps.setString(5, address);
-            ps.setString(6, contactNo);
-            ps.setInt(7, countryId);
-            ps.setInt(8, stateId);
-            ps.setInt(9, cityId);
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        String hashedPassword = encoder.encode(password);
 
-            ps.executeUpdate();
+        String photoName = null;
+
+        try {
+
+            if (!photoFile.isEmpty()) {
+                photoName = photoFile.getOriginalFilename();
+                String uploadPath = "C:/employee_uploads/" + photoName;
+                photoFile.transferTo(new java.io.File(uploadPath));
+            }
+
+            try (Connection con = getConnection();
+                 PreparedStatement ps = con.prepareStatement(
+                         "INSERT INTO employees(firstName,lastName,username,password,gender,address,contactNo,country_id,state_id,city_id,photo) VALUES(?,?,?,?,?,?,?,?,?,?,?)"
+                 )) {
+
+                ps.setString(1, firstName);
+                ps.setString(2, lastName);
+                ps.setString(3, username);
+                ps.setString(4, hashedPassword);
+                ps.setString(5, gender);
+                ps.setString(6, address);
+                ps.setString(7, contactNo);
+                ps.setInt(8, countryId);
+                ps.setInt(9, stateId);
+                ps.setInt(10, cityId);
+                ps.setString(11, photoName); // 🔥 PHOTO SAVE
+
+                ps.executeUpdate();
+
+                System.out.println("Employee Inserted With Photo");
+
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -226,34 +334,69 @@ public class EmployeeController {
         return "redirect:/employees";
     }
 
+
+
     // ================= UPDATE =================
     @PostMapping("/update")
     public String updateEmployee(
-            @RequestParam int id,
+    		@RequestParam(value = "id", required = false) Integer id,
             @RequestParam String firstName,
             @RequestParam String lastName,
             @RequestParam String username,
+            @RequestParam(required = false) String password,
             @RequestParam String gender,
             @RequestParam String address,
             @RequestParam String contactNo,
             @RequestParam Integer countryId,
             @RequestParam Integer stateId,
-            @RequestParam Integer cityId) {
+            @RequestParam Integer cityId,
+            @RequestParam("photoFile") MultipartFile photoFile
+    ) {
 
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(
-                     "UPDATE employees SET firstName=?, lastName=?, username=?, gender=?, address=?, contactNo=?, country_id=?, state_id=?, city_id=? WHERE id=?")) {
+        try (Connection con = getConnection()) {
+        	
+        	@SuppressWarnings("unused")
+			String hashedPassword = null;
+        	if (password != null && !password.isEmpty()) {
+        	    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        	    hashedPassword = encoder.encode(password);
+        	}
 
-            ps.setString(1, firstName);
-            ps.setString(2, lastName); 
-            ps.setString(3, username);
-            ps.setString(4, gender);
-            ps.setString(5, address);
-            ps.setString(6, contactNo);
-            ps.setInt(7, countryId);
-            ps.setInt(8, stateId);
-            ps.setInt(9, cityId);
-            ps.setInt(10, id);
+
+            String photoName = null;
+
+            if (!photoFile.isEmpty()) {
+                photoName = photoFile.getOriginalFilename();
+                String uploadPath = "C:/employee_uploads/" + photoName;
+                photoFile.transferTo(new java.io.File(uploadPath));
+            }
+
+            String sql = "UPDATE employees SET firstName=?, lastName=?, username=?, gender=?, address=?, contactNo=?, country_id=?, state_id=?, city_id=?";
+
+            if (photoName != null) {
+                sql += ", photo=?";
+            }
+
+            sql += " WHERE id=?";
+
+            PreparedStatement ps = con.prepareStatement(sql);
+
+            int index = 1;
+            ps.setString(index++, firstName);
+            ps.setString(index++, lastName);
+            ps.setString(index++, username);
+            ps.setString(index++, gender);
+            ps.setString(index++, address);
+            ps.setString(index++, contactNo);
+            ps.setInt(index++, countryId);
+            ps.setInt(index++, stateId);
+            ps.setInt(index++, cityId);
+
+            if (photoName != null) {
+                ps.setString(index++, photoName);
+            }
+
+            ps.setInt(index, id);
 
             ps.executeUpdate();
 

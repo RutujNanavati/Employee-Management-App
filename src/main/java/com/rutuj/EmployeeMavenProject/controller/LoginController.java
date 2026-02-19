@@ -72,36 +72,68 @@ public class LoginController {
 
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
-        try (Connection con = getConnection();
-             PreparedStatement ps =
-                     con.prepareStatement("SELECT * FROM admin WHERE username=?")) {
+        try (Connection con = getConnection()) {
 
-            ps.setString(1, username);
-            ResultSet rs = ps.executeQuery();
+            // 🔥 First check ADMIN table
+            PreparedStatement adminPs =
+                    con.prepareStatement("SELECT * FROM admin WHERE username=?");
 
-            if (rs.next()) {
+            adminPs.setString(1, username);
+            ResultSet adminRs = adminPs.executeQuery();
 
-                String dbPassword = rs.getString("password");
-                String role = rs.getString("role");
+            if (adminRs.next()) {
+
+                String dbPassword = adminRs.getString("password");
+                String role = adminRs.getString("role");
 
                 if (encoder.matches(password, dbPassword)) {
 
-                    // 🔥 Store in session
                     session.setAttribute("user", username);
                     session.setAttribute("role", role);
 
-                    // 🔥 Role based redirect
-                    if ("ADMIN".equalsIgnoreCase(role)) {
-                        return "redirect:/dashboard";
-                    } 
-                    else if ("HR".equalsIgnoreCase(role)) {
-                        return "redirect:/dashboard";
-                    } 
-                    else if ("EMPLOYEE".equalsIgnoreCase(role)) {
-                        return "redirect:/employees";
-                    }
+                    return "redirect:/dashboard";
                 }
             }
+
+            // 🔥 If not admin, check EMPLOYEES table
+            PreparedStatement empPs =
+                    con.prepareStatement("SELECT * FROM employees WHERE username=?");
+
+            empPs.setString(1, username);
+            ResultSet empRs = empPs.executeQuery();
+
+            if (empRs.next()) {
+
+                String dbPassword = empRs.getString("password");
+
+                boolean loginSuccess = false;
+
+                // 🔥 If hashed password
+                if (dbPassword != null && dbPassword.startsWith("$2a$")) {
+
+                    if (encoder.matches(password, dbPassword)) {
+                        loginSuccess = true;
+                    }
+
+                } 
+                // 🔥 If plain text password (temporary support)
+                else {
+                    if (password.equals(dbPassword)) {
+                        loginSuccess = true;
+                    }
+                }
+
+                if (loginSuccess) {
+
+                    session.setAttribute("user", username);
+                    session.setAttribute("role", "EMPLOYEE");
+                    session.setAttribute("employeeId", empRs.getInt("id"));
+
+                    return "redirect:/employees/profile/" + empRs.getInt("id");
+                }
+          
+            }
+            
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -110,6 +142,7 @@ public class LoginController {
         model.addAttribute("error", "Invalid Credentials");
         return "login";
     }
+
 
     // ========= LOGOUT =========
     @GetMapping("/logout")

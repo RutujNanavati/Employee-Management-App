@@ -103,7 +103,8 @@
 	    </div>
 	</th>
     <th>Contact</th>
-    <th>Action</th>
+	<th>Action</th>
+
 </tr>
 
 <c:forEach var="emp" items="${employees}">
@@ -120,19 +121,33 @@
 	</td>
 
     <td>${emp.contactNo}</td>
-    <td>
-    <c:if test="${sessionScope.role == 'ADMIN' || sessionScope.role == 'HR'}">
-        <a class="edit-btn" href="${pageContext.request.contextPath}/employees/edit/${emp.id}">Edit</a>
-            <c:if test="${sessionScope.role == 'ADMIN'}">
-        <a class="delete-btn"
-   href="#"
-   onclick="openDeleteModal('${pageContext.request.contextPath}/employees/delete/${emp.id}')">
-   Delete
-		</a>
-		</c:if>
-		</c:if>
+    <td class="action-cell">
 
-    </td>
+    <!-- 👁 View Button -->
+    <a class="view-btn"
+       href="${pageContext.request.contextPath}/employees/profile/${emp.id}">
+        👁️
+    </a>
+
+    <!-- Edit -->
+    <c:if test="${sessionScope.role == 'ADMIN' || sessionScope.role == 'HR'}">
+        <a class="edit-btn"
+           href="${pageContext.request.contextPath}/employees/edit/${emp.id}">
+            Edit
+        </a>
+    </c:if>
+
+    <!-- Delete -->
+    <c:if test="${sessionScope.role == 'ADMIN'}">
+        <a class="delete-btn"
+           href="#"
+           onclick="openDeleteModal('${pageContext.request.contextPath}/employees/delete/${emp.id}')">
+            Delete
+        </a>
+    </c:if>
+
+</td>
+
 </tr>
 </c:forEach>
 

@@ -18,9 +18,12 @@
     </c:otherwise>
 </c:choose>
 
-<form action="${pageContext.request.contextPath}/employees/${action}" method="post">
+<form action="${pageContext.request.contextPath}/employees/${action}"
+      method="post"
+      enctype="multipart/form-data">
 
-    <input type="hidden" name="id" value="${id}" />
+    <input type="hidden" name="id" value="${id}">
+
 
     <div class="input-group">
         <input type="text" name="firstName" value="${firstName}" placeholder="First Name" required>
@@ -33,6 +36,13 @@
     <div class="input-group">
         <input type="text" name="username" value="${username}" placeholder="Username" required>
     </div>
+    
+    <c:if test="${mode == 'add'}">
+    <div class="input-group">
+        <input type="password" name="password" placeholder="Password" required>
+    </div>
+	</c:if>
+    
     
 <div class="input-group">
     <div class="input-group gender-row">
@@ -58,12 +68,12 @@
 			    ⚧ Other
 			</label>
         </div>
-
     </div>
 </div>
 
-    
-
+    <div class="input-group">
+    	<input type="file" name="photoFile" accept="image/*">
+	</div>
     <div class="input-group">
         <input type="text" name="address" value="${address}" placeholder="Address" required>
     </div>
