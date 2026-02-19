@@ -90,8 +90,17 @@ public class LoginController {
 
                     session.setAttribute("user", username);
                     session.setAttribute("role", role);
+                    
+                    PreparedStatement logPs = con.prepareStatement(
+                    	    "INSERT INTO login_logs(username, role) VALUES(?, ?)"
+                    	);
+                    	logPs.setString(1, username);
+                    	logPs.setString(2, adminRs.getString("role"));
+                    	logPs.executeUpdate();
 
                     return "redirect:/dashboard";
+                    
+                    
                 }
             }
 
@@ -128,8 +137,18 @@ public class LoginController {
                     session.setAttribute("user", username);
                     session.setAttribute("role", "EMPLOYEE");
                     session.setAttribute("employeeId", empRs.getInt("id"));
+                    
+                    PreparedStatement logPs = con.prepareStatement(
+                    	    "INSERT INTO login_logs(username, role) VALUES(?, ?)"
+                    	);
+                    	logPs.setString(1, username);
+                    	logPs.setString(2, empRs.getString("role"));
+                    	logPs.executeUpdate();
+
 
                     return "redirect:/employees/profile/" + empRs.getInt("id");
+                    
+                    
                 }
             }
 
