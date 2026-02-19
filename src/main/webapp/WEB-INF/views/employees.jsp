@@ -95,15 +95,22 @@
             Gender▼
         </span>
         	<div id="genderDropdown" class="gender-dropdown">
-            <a href="${pageContext.request.contextPath}/employees?gender=">All</a>
-            <a href="${pageContext.request.contextPath}/employees?gender=Male">Male👨</a>
-            <a href="${pageContext.request.contextPath}/employees?gender=Female">Female👩</a>
-            <a href="${pageContext.request.contextPath}/employees?gender=Other">Other ⚧</a>
+            <a href="${pageContext.request.contextPath}/employees?page=1&size=${size}&sort=${sort}&keyword=${keyword}&gender=">All
+</a>
+<a href="${pageContext.request.contextPath}/employees?page=1&size=${size}&sort=${sort}&keyword=${keyword}&gender=Male">
+    Male👨
+</a>
+<a href="${pageContext.request.contextPath}/employees?page=1&size=${size}&sort=${sort}&keyword=${keyword}&gender=Female">
+    Female👩
+</a>
+<a href="${pageContext.request.contextPath}/employees?page=1&size=${size}&sort=${sort}&keyword=${keyword}&gender=Other">
+    Other ⚧
+</a>
 	        </div>
 	    </div>
 	</th>
     <th>Contact</th>
-	<th>Action</th>
+<th>Action</th>
 
 </tr>
 

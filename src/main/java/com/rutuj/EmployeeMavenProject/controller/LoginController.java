@@ -31,36 +31,36 @@ public class LoginController {
         return "signup";
     }
 
-    // ========= PROCESS SIGNUP =========
-    @PostMapping("/signup")
-    public String processSignup(
-            @RequestParam String username,
-            @RequestParam String password,
-            @RequestParam(defaultValue = "ADMIN") String role,
-            Model model) {
-
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        String hashedPassword = encoder.encode(password);
-
-        try (Connection con = getConnection();
-             PreparedStatement ps =
-                     con.prepareStatement(
-                         "INSERT INTO admin(username,password,role) VALUES(?,?,?)")) {
-
-            ps.setString(1, username);
-            ps.setString(2, hashedPassword);
-            ps.setString(3, role);
-
-            ps.executeUpdate();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            model.addAttribute("error", "Signup Failed");
-            return "signup";
-        }
-
-        return "redirect:/login";
-    }
+//    // ========= PROCESS SIGNUP =========
+//    @PostMapping("/signup")
+//    public String processSignup(
+//            @RequestParam String username,
+//            @RequestParam String password,
+//            @RequestParam(defaultValue = "ADMIN") String role,
+//            Model model) {
+//
+//        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+//        String hashedPassword = encoder.encode(password);
+//
+//        try (Connection con = getConnection();
+//             PreparedStatement ps =
+//                     con.prepareStatement(
+//                         "INSERT INTO admin(username,password,role) VALUES(?,?,?)")) {
+//
+//            ps.setString(1, username);
+//            ps.setString(2, hashedPassword);
+//            ps.setString(3, role);
+//
+//            ps.executeUpdate();
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            model.addAttribute("error", "Signup Failed");
+//            return "signup";
+//        }
+//
+//        return "redirect:/login";
+//    }
 
     // ========= PROCESS LOGIN =========
     @PostMapping("/login")
@@ -131,9 +131,8 @@ public class LoginController {
 
                     return "redirect:/employees/profile/" + empRs.getInt("id");
                 }
-          
             }
-            
+
 
         } catch (Exception e) {
             e.printStackTrace();

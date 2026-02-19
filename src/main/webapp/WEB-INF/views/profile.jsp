@@ -35,6 +35,50 @@ body {
     padding: 30px;
 }
 
+.avatar-wrapper {
+    position: relative;
+    width: 110px;
+    height: 110px;
+    margin: 0 auto 20px auto;
+}
+
+.profile-img,
+.avatar-circle {
+    width: 110px;
+    height: 110px;
+    box-shadow: 0 4px 10px rgba(0,0,0,1);
+    border-radius: 50%;
+    object-fit: cover;
+    transition: 1s;
+}
+.profile-img:hover,.avtar-circle:hover{
+transform: scale(1.25);
+display:.profile-img;}
+
+.camera-icon {
+display:inline-block;
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    background: ;
+    color: white;
+    font-size: 14px;
+    padding: 3px;
+    margin-bottom:1px;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    transition: 1s;
+}
+
+.camera-icon:hover {
+    background: ;
+    transform: scale(1.35);
+    box-shadow: 0 4px 10px rgba(0,0,0,1);
+
+}
+
+
 /* Avatar (for letter fallback) */
 .avatar-circle {
     width: 110px;
@@ -140,10 +184,18 @@ body {
     <!-- LEFT SIDE -->
     <div class="profile-left">
 
-        <!-- Avatar -->
+      <form action="${pageContext.request.contextPath}/employees/changePhoto"
+      method="post"
+      enctype="multipart/form-data"
+      id="photoForm">
+
+    <input type="hidden" name="id" value="${id}">
+
+    <div class="avatar-wrapper">
+
         <c:choose>
             <c:when test="${not empty photo}">
-                <img src="${pageContext.request.contextPath}/uploads/${photo}"
+                <img src="${pageContext.request.contextPath}/employee_uploads/${photo}"
                      class="profile-img">
             </c:when>
             <c:otherwise>
@@ -152,6 +204,24 @@ body {
                 </div>
             </c:otherwise>
         </c:choose>
+
+        <!-- Hidden File -->
+        <input type="file"
+               name="photoFile"
+               id="photoInput"
+               accept="image/*"
+               style="display:none"
+               onchange="document.getElementById('photoForm').submit();">
+
+        <!-- Camera Icon -->
+        <div class="camera-icon"
+             onclick="document.getElementById('photoInput').click();">
+            📷
+        </div>
+
+    </div>
+</form>
+
 
         <div class="profile-name">
             ${firstName} ${lastName}

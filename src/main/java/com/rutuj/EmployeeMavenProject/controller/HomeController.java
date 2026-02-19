@@ -2,9 +2,12 @@ package com.rutuj.EmployeeMavenProject.controller;
 
 import java.sql.*;
 import java.util.*;
+
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Controller
 public class HomeController {
@@ -99,7 +102,9 @@ public class HomeController {
             @RequestParam String contactNo,
             @RequestParam(required=false) Integer countryId,
             @RequestParam(required=false) Integer stateId,
-            @RequestParam(required=false) Integer cityId) {
+            @RequestParam(required=false) Integer cityId,
+            @RequestParam("photoFile") MultipartFile photoFile
+    ) {
 
         try {
 
@@ -110,20 +115,34 @@ public class HomeController {
                     "root",
                     "@Rutuj2005");
 
-            String sql = "INSERT INTO employees(firstName,lastName,username,password,gender,address,contactNo,country_id,state_id,city_id) VALUES(?,?,?,?,?,?,?,?,?,?)";
+            // 🔐 PASSWORD HASH
+            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+            String hashedPassword = encoder.encode(password);
+
+            // 📸 PHOTO SAVE
+            String photoName = null;
+
+            if (!photoFile.isEmpty()) {
+                photoName = photoFile.getOriginalFilename();
+                String uploadPath = "C:/employee_uploads/" + photoName;
+                photoFile.transferTo(new java.io.File(uploadPath));
+            }
+
+            String sql = "INSERT INTO employees(firstName,lastName,username,password,gender,address,contactNo,country_id,state_id,city_id,photo) VALUES(?,?,?,?,?,?,?,?,?,?,?)";
 
             PreparedStatement ps = con.prepareStatement(sql);
 
             ps.setString(1, firstName);
             ps.setString(2, lastName);
             ps.setString(3, username);
-            ps.setString(4, password);
+            ps.setString(4, hashedPassword);
             ps.setString(5, gender);
             ps.setString(6, address);
             ps.setString(7, contactNo);
-            ps.setInt(8, countryId);
-            ps.setInt(9, stateId);
-            ps.setInt(10, cityId);
+            ps.setObject(8, countryId);
+            ps.setObject(9, stateId);
+            ps.setObject(10, cityId);
+            ps.setString(11, photoName);
 
             ps.executeUpdate();
 
@@ -133,6 +152,7 @@ public class HomeController {
             e.printStackTrace();
         }
 
-        return "redirect:/success";
+        return "redirect:/login";
     }
+
 }

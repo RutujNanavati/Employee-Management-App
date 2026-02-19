@@ -10,7 +10,10 @@
 <div class="container">
     <center><h2>Employee Registration</h2></center>
 
-    <form action="${pageContext.request.contextPath}/register" method="post">
+    <form action="${pageContext.request.contextPath}/register"
+      method="post"
+      enctype="multipart/form-data">
+
 
         <div class="input-group">
             <input type="text" name="firstName" placeholder="First Name" required>
@@ -28,32 +31,33 @@
             <input type="password" name="password" placeholder="Password" required>
         </div>
         
-        <div class="input-group">
 		<div class="input-group gender-row">
 		    
-		    <label class="gender-label">Gender:</label>
+		    <label class="gender-label">Gender</label>
 		
 		    <div class="gender-options">
 		        <label>
 		            <input type="radio" name="gender" value="Male" required>
-		           👨Male
+			    👨Male
 		        </label>
 		
 		        <label>
 		            <input type="radio" name="gender" value="Female">
-		           👩Female
+			    👩Female
 		        </label>
 		
 		        <label>
 		            <input type="radio" name="gender" value="Other">
-		            ⚧ Other
+			    ⚧ Other
 		        </label>
 		    </div>
 		
 		</div>
-		</div>
-
-        
+		
+		<div class="input-group">
+    	<input type="file" name="photoFile" accept="image/*">
+	</div>
+      
 
         <div class="input-group">
             <input type="text" name="address" placeholder="Address">
@@ -86,6 +90,12 @@
 
         <button type="submit">Register</button>
     </form>
+    
+     <p style="text-align:center;margin-top:10px;font-size:18px;">
+     Already have an account? 
+    <a href="${pageContext.request.contextPath}/login">Login</a>
+</p>
+   
 
 </div>
 

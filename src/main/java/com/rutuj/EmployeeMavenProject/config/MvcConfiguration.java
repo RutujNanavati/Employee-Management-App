@@ -40,7 +40,7 @@ public class MvcConfiguration implements WebMvcConfigurer {
                 .addResourceLocations("/resources/");
 
         // 🔥 VERY IMPORTANT - Uploads Folder Mapping
-        registry.addResourceHandler("/uploads/**")
+        registry.addResourceHandler("/employee_uploads/**")
                 .addResourceLocations("file:///C:/employee_uploads/");
     }
 }

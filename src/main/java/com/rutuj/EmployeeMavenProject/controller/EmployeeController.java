@@ -431,4 +431,34 @@ public class EmployeeController {
 
         return "redirect:/employees";
     }
+    
+    @PostMapping("/changePhoto")
+    public String changePhoto(
+            @RequestParam int id,
+            @RequestParam("photoFile") MultipartFile photoFile,
+            HttpSession session) {
+
+        try (Connection con = getConnection()) {
+
+            if (!photoFile.isEmpty()) {
+
+                String photoName = photoFile.getOriginalFilename();
+                String uploadPath = "C:/employee_uploads/" + photoName;
+                photoFile.transferTo(new java.io.File(uploadPath));
+
+                PreparedStatement ps = con.prepareStatement(
+                        "UPDATE employees SET photo=? WHERE id=?");
+
+                ps.setString(1, photoName);
+                ps.setInt(2, id);
+                ps.executeUpdate();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "redirect:/employees/profile/" + id;
+    }
+
 }

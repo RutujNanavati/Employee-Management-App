@@ -4,10 +4,10 @@
 <title>Login</title>
 <div class="container">
 
-    <center> <h2> Admin Login </h2> </center>
+    <center> <h2> Login </h2> </center>
     
     <p style="text-align:center;margin-top:10px;">
-    <a href="${pageContext.request.contextPath}/signup">Create Account</a>
+    <a href="${pageContext.request.contextPath}/register">Register Your Account</a>
 </p>
     
 

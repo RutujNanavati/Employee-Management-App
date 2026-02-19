@@ -16,7 +16,7 @@
         <c:set var="action" value="save"/>
         <c:set var="btn" value="Add Employee"/>
     </c:otherwise>
-</c:choose>
+	</c:choose>
 
 <form action="${pageContext.request.contextPath}/employees/${action}"
       method="post"
