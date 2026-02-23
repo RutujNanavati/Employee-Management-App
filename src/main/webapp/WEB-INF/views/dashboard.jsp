@@ -84,6 +84,14 @@ body {
 }
 
 
+.logout{
+    color: red;
+}
+
+.logout:hover {
+   color: darkred;
+}
+
 </style>
 </head>
 
@@ -94,9 +102,11 @@ body {
     </div>
 
    <div class="nav-right">
-        <a href="${pageContext.request.contextPath}/dashboard">Dashboard</a>
-        <a href="${pageContext.request.contextPath}/employees">Employees</a>
-        <a href="${pageContext.request.contextPath}/logout">Logout</a>
+      	<a href="${pageContext.request.contextPath}/leaves" class="nav">Leave Applications</a>
+        <a href="${pageContext.request.contextPath}/dashboard" class="nav">Dashboard</a>
+        <a href="${pageContext.request.contextPath}/employees" class="nav">Employees</a>
+        <a href="${pageContext.request.contextPath}/logout" class="logout">Logout</a>
+
 </div>
 </div>
 

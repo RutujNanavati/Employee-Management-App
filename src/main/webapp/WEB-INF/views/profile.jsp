@@ -123,6 +123,27 @@ display:inline-block;
     font-size: 12px;
     border-radius: 20px;
 }
+.profile-logout {
+    margin-top: 10px;
+    text-align: center;
+}
+
+.logout-btn {
+    display: inline-block;
+    padding: 6px 12px;
+    background: #e53935;
+    color: #ffffff;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    transition: 0.3s ease;
+}
+
+.logout-btn:hover {
+    background: #c62828;
+    transform: scale(1.05);
+}
 
 /* Right Card */
 .profile-right {
@@ -157,9 +178,35 @@ display:inline-block;
 
 /* Button */
 .profile-actions {
-    margin-top: 25px;
+    margin-top: 50px;
     text-align: right;
 }
+
+.ApplyLeave-btn{
+    padding: 8px 14px;
+    background: #4CAF50;
+    color: white;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: 0.2s ease;
+}
+.ApplyLeave-btn:hover {
+    background: #43a047;
+}
+.MyLeave-btn{
+    padding: 8px 14px;
+    background: #4CAF50;
+    margin-right:107px;
+    margin-left:110px;
+    color: white;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: 0.2s ease;
+}
+.MyLeave-btn:hover {
+    background: #43a047;
+}
+
 
 .back-btn {
     padding: 8px 18px;
@@ -233,7 +280,14 @@ display:inline-block;
 
         <div class="role-badge">
             ${profileRole}
-        </div>
+		</div>
+                <c:if test="${sessionScope.role == 'EMPLOYEE'}">
+		<div class="profile-logout">
+    			<a href="${pageContext.request.contextPath}/logout" class="logout-btn">
+       			 Logout
+    			</a>
+    	</div>
+   				 </c:if>
 
     </div>
 
@@ -259,8 +313,20 @@ display:inline-block;
             <div class="info-label">Address</div>
             <div class="info-value">${address}</div>
         </div>
+        
+        
 
         <div class="profile-actions">
+        	<c:if test="${sessionScope.role == 'EMPLOYEE'}">
+        	<a href="${pageContext.request.contextPath}/employees/apply-leave" class="ApplyLeave-btn">
+                Apply Leave
+            </a>     
+      
+        	<a href="${pageContext.request.contextPath}/leaves/my" class="MyLeave-btn">
+                My Leaves
+            </a>
+            </c:if>
+            
             <a href="${pageContext.request.contextPath}/employees" class="back-btn">
                 Back
             </a>
