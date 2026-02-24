@@ -7,7 +7,7 @@
     <center> <h2> Login </h2> </center>
     
     <p style="text-align:center;margin-top:10px;">
-    <a href="${pageContext.request.contextPath}/register">Register Your Account</a>
+    <a href="${pageContext.request.contextPath}/register">Have you Registered your self?</a>
 </p>
     
 

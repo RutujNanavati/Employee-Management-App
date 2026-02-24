@@ -15,10 +15,47 @@
       	<a href="${pageContext.request.contextPath}/leaves" class="nav">Leave Applications</a>
         <a href="${pageContext.request.contextPath}/dashboard" class="nav">Dashboard</a>
         <a href="${pageContext.request.contextPath}/employees" class="nav">Employees</a>
-        <a href="${pageContext.request.contextPath}/logout" class="logout">Logout</a>
+        <div class="profile-menu">
+
+    <div class="profile-circle" onclick="toggleProfileMenu()"
+         title="${sessionScope.user} (${sessionScope.role})">
+
+        <c:choose>
+            <c:when test="${not empty sessionScope.photo}">
+                <img src="${pageContext.request.contextPath}/employee_uploads/${sessionScope.photo}"
+                     class="nav-profile-img">
+            </c:when>
+            <c:otherwise>
+                ${sessionScope.user.substring(0,1)}
+            </c:otherwise>
+        </c:choose>
+
+    </div>
+
+    <div id="profileDropdown" class="profile-dropdown">
+        <div class="profile-info">
+            <strong>${sessionScope.user}</strong><br>
+            <small>${sessionScope.role}</small>
+        </div>
+
+        <a href="${pageContext.request.contextPath}/employees/profile/${sessionScope.employeeId}">
+            Edit Profile
+        </a>
+
+        <a href="${pageContext.request.contextPath}/change-password">
+            Change Password
+        </a>
+
+        <a href="${pageContext.request.contextPath}/logout" class="logout-link">
+            Logout ⏻
+        </a>
+    </div>
+
+</div>
 
 </div>
 </div>
+
 
 <!-- search class -->
 <div class="container-large">
@@ -240,8 +277,20 @@ window.onclick = function(e) {
     }
 }
 
+function toggleProfileMenu() {
+    const dropdown = document.getElementById("profileDropdown");
+    dropdown.style.display =
+        dropdown.style.display === "block" ? "none" : "block";
+}
 
+window.addEventListener("click", function(e) {
+    if (!e.target.closest(".profile-menu")) {
+        document.getElementById("profileDropdown").style.display = "none";
+    }
+});
 </script>
+
+
 
 
 

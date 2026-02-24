@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -9,20 +10,13 @@
 
 <style>
 
-/* Page Background */
-body {
-    background: linear-gradient(135deg, lightgreen, green, #61db57);
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-}
 
 /* Main Card */
 .dashboard-card {
     width:60%;
     hight:50%;
     margin: 40px auto;
-    margin-top:90px;
+    margin-top:50px;
     background: #ffffff;
     padding: 30px;
     border-radius: 12px;
@@ -83,15 +77,6 @@ body {
     box-shadow: 0 8px 18px rgba(0,0,0,0.1);
 }
 
-
-.logout{
-    color: red;
-}
-
-.logout:hover {
-   color: darkred;
-}
-
 </style>
 </head>
 
@@ -105,10 +90,47 @@ body {
       	<a href="${pageContext.request.contextPath}/leaves" class="nav">Leave Applications</a>
         <a href="${pageContext.request.contextPath}/dashboard" class="nav">Dashboard</a>
         <a href="${pageContext.request.contextPath}/employees" class="nav">Employees</a>
-        <a href="${pageContext.request.contextPath}/logout" class="logout">Logout</a>
+        <div class="profile-menu">
+
+    <div class="profile-circle" onclick="toggleProfileMenu()"
+         title="${sessionScope.user} (${sessionScope.role})">
+
+        <c:choose>
+            <c:when test="${not empty sessionScope.photo}">
+                <img src="${pageContext.request.contextPath}/employee_uploads/${sessionScope.photo}"
+                     class="nav-profile-img">
+            </c:when>
+            <c:otherwise>
+                ${sessionScope.user.substring(0,1)}
+            </c:otherwise>
+        </c:choose>
+
+    </div>
+
+    <div id="profileDropdown" class="profile-dropdown">
+        <div class="profile-info">
+            <strong>${sessionScope.user}</strong><br>
+            <small>${sessionScope.role}</small>
+        </div>
+
+        <a href="${pageContext.request.contextPath}/employees/profile/${sessionScope.employeeId}">
+            Edit Profile
+        </a>
+
+        <a href="${pageContext.request.contextPath}/change-password">
+            Change Password
+        </a>
+
+        <a href="${pageContext.request.contextPath}/logout" class="logout-link">
+            Logout ⏻
+        </a>
+    </div>
+
+</div>
 
 </div>
 </div>
+
 
 <div class="dashboard-card">
 
@@ -213,8 +235,19 @@ new Chart(ctx, {
         }
     },
 });
-</script>
 
+function toggleProfileMenu() {
+    const dropdown = document.getElementById("profileDropdown");
+    dropdown.style.display =
+        dropdown.style.display === "block" ? "none" : "block";
+}
+
+window.addEventListener("click", function(e) {
+    if (!e.target.closest(".profile-menu")) {
+        document.getElementById("profileDropdown").style.display = "none";
+    }
+});
+</script>
 
 </body>
 </html>
