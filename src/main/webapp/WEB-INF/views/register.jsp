@@ -10,9 +10,8 @@
 <div class="container">
     <center><h2>Employee Registration</h2></center>
 
-    <form action="${pageContext.request.contextPath}/register"
-      method="post"
-      enctype="multipart/form-data">
+		<form action="${pageContext.request.contextPath}/employees/save"
+	      method="post" enctype="multipart/form-data">
 
 
         <div class="input-group">
@@ -26,6 +25,15 @@
         <div class="input-group">
             <input type="text" name="username" placeholder="Username" required>
         </div>
+        
+        <div class="input-group">
+    <input type="text"
+           name="dob"
+           placeholder="Date of Birth"
+           onfocus="this.type='date'"
+           onblur="if(!this.value)this.type='text'">
+</div>
+
 
         <div class="input-group">
             <input type="password" name="password" placeholder="Password" required>
@@ -66,6 +74,14 @@
         <div class="input-group">
             <input type="text" name="contactNo" placeholder="Contact No">
         </div>
+        
+        <div class="input-group">
+    <input type="text"
+           name="joiningDate"
+           placeholder="Joining Date"
+           onfocus="this.type='date'"
+           onblur="if(!this.value)this.type='text'">
+</div>
 
         <!-- COUNTRY -->
         <div class="input-group">

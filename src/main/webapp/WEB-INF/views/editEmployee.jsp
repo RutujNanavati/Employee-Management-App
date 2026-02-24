@@ -37,6 +37,16 @@
         <input type="text" name="username" value="${username}" placeholder="Username" required>
     </div>
     
+    <div class="input-group">
+    <input type="text"
+           name="dob"
+           value="${dob}"
+           placeholder="Date of Birth"
+           onfocus="this.type='date'"
+           onblur="if(!this.value)this.type='text'">
+</div>
+
+    
     <c:if test="${mode == 'add'}">
     <div class="input-group">
         <input type="password" name="password" placeholder="Password" required>
@@ -81,6 +91,15 @@
     <div class="input-group">
         <input type="text" name="contactNo" value="${contactNo}" placeholder="Contact No" required>
     </div>
+    
+    <div class="input-group">
+    <input type="text"
+           name="joiningDate"
+           value="${joiningDate}"
+           placeholder="Joining Date"
+           onfocus="this.type='date'"
+           onblur="if(!this.value)this.type='text'">
+</div>
 
     <!-- COUNTRY -->
     <div class="input-group">

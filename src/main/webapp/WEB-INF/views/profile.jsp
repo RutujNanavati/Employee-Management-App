@@ -223,6 +223,31 @@ display:inline-block;
     background: #43a047;
 }
 
+.split-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.left-info,
+.right-info {
+    width: 43%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.info-label {
+    font-weight: 600;
+    color: #555;
+}
+
+.left-info .info-value {
+    color: #222;
+    margin-right:20px;
+}
+}
 </style>
 </head>
 
@@ -235,9 +260,11 @@ display:inline-block;
     </div>
 
    <div class="nav-right">
-      	<%-- <a href="${pageContext.request.contextPath}/leaves" class="nav">Leave Applications</a>
+		<c:if test="${sessionScope.role == 'ADMIN' || sessionScope.role == 'HR'}">      	
+		<a href="${pageContext.request.contextPath}/leaves" class="nav">Leave Applications</a>
         <a href="${pageContext.request.contextPath}/dashboard" class="nav">Dashboard</a>
-        <a href="${pageContext.request.contextPath}/employees" class="nav">Employees</a> --%>
+        <a href="${pageContext.request.contextPath}/employees" class="nav">Employees</a>
+        </c:if>
         <div class="profile-menu">
 
     <div class="profile-circle" onclick="toggleProfileMenu()"
@@ -351,11 +378,37 @@ display:inline-block;
             <div class="info-label">Employee ID</div>
             <div class="info-value">${id}</div>
         </div>
+        
+<!-- DOB + AGE -->
+<div class="info-row split-row">
+    <div class="left-info">
+        <span class="info-label">Date of Birth:</span>
+        <span class="info-value">${dob}</span>
+    </div>
 
+    <div class="right-info">
+        <span class="info-label">Age:</span>
+        <span class="info-value">${age}</span>
+    </div>
+</div>
+
+<!-- JOINING + EXPERIENCE -->
+<div class="info-row split-row">
+    <div class="left-info">
+        <span class="info-label">Joining Date:</span>
+        <span class="info-value">${joiningDate}</span>
+    </div>
+
+    <div class="right-info">
+        <span class="info-label">Experience:</span>
+        <span class="info-value">${experience}</span>
+    </div>
+</div>
         <div class="info-row">
             <div class="info-label">Gender</div>
             <div class="info-value">${gender}</div>
         </div>
+        
 
         <div class="info-row">
             <div class="info-label">Contact</div>
