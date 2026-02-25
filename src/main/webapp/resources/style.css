@@ -13,8 +13,9 @@
 
 body {
     font-family: 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg, lightgreen, green, #61db57);
-    min-height: 100vh;
+    background: linear-gradient(180deg, lightgreen, green); 
+/*  royal blue bg   background: linear-gradient(180deg, #1e3a8a, #0f172a);
+ */    min-height: 100vh;
     padding: 80px 40px 40px 40px; /* navbar space */
 }
 
@@ -24,7 +25,7 @@ body {
 .navbar {
     width: 100%;
     height: 60px;
-    background: #ffffff;
+    background: #fff;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -33,7 +34,6 @@ body {
     top: 0;
     left: 0;
     z-index: 1000;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
 }
 
 .nav-left {
@@ -43,26 +43,85 @@ body {
     padding-right:20px;
 }
 
+.nav-left {
+    font-weight: bold;
+}
+
+.nav-right {
+    display: flex;
+    align-items: center;   /* 🔥 ye bhi important */
+    gap: 20px;
+    }
+
 .nav-right a {
-    color: #61db57;
     text-decoration: none;
-    margin-left: 25px;
-    font-weight: 700;
-    transition: 0.2s;
+    font-weight: 640;
+    color: #61db57;
+    font-size:15px;
 }
 
-.nav-right a:hover {
-    color: darkgreen;
+/* Profile circle */
+.profile-menu {
+    display: flex;
+    align-items: center;
+    position: relative;
+    display: inline-block;
+    margin-left:15px;
 }
 
-.nav-right b {
-	margin-left:25px;
+.profile-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #4CAF50;
+    color: white;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.nav-profile-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 50px;
+    background: white;
+    width: 200px;
+    border-radius: 8px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    overflow: hidden;
+    z-index: 1000;
+    margin-left:10px;
+}
+
+.profile-dropdown a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: #333;
+}
+
+.profile-dropdown a:hover {
+    background: #f1f1f1;
+}
+
+.profile-info {
+    padding: 12px;
+    background: #f5f5f5;
+    border-bottom: 1px solid #eee;
+}
+
+.logout-link {
     color: red;
-    font-weight:700;
-}
-
-.nav-right b:hover {
-    color: darkred;
 }
 
 /* ===================================================

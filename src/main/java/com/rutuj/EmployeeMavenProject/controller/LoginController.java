@@ -90,6 +90,7 @@ public class LoginController {
 
                     session.setAttribute("user", username);
                     session.setAttribute("role", role);
+                    session.setAttribute("photo", null);
                     
                     PreparedStatement logPs = con.prepareStatement(
                     	    "INSERT INTO login_logs(username, role) VALUES(?, ?)"
@@ -115,6 +116,17 @@ public class LoginController {
 
                 String dbPassword = empRs.getString("password");
 
+                
+				/* For Users whose passes are not Bcrypted.
+				 * boolean correct = false;
+				 * 
+				 * if (dbPassword != null && dbPassword.startsWith("$2a$")) { correct =
+				 * encoder.matches(oldPassword, dbPassword); } else { correct =
+				 * oldPassword.equals(dbPassword); }
+				 * 
+				 * if (!correct) { model.addAttribute("error", "Old password incorrect"); return
+				 * "changePassword"; }
+				 */
                 boolean loginSuccess = false;
 
                 // 🔥 If hashed password
@@ -136,6 +148,7 @@ public class LoginController {
 
                     session.setAttribute("user", username);
                     session.setAttribute("role", "EMPLOYEE");
+                    session.setAttribute("photo", empRs.getString("photo"));
                     session.setAttribute("employeeId", empRs.getInt("id"));
                     
                     PreparedStatement logPs = con.prepareStatement(
@@ -158,6 +171,66 @@ public class LoginController {
         }
 
         model.addAttribute("error", "Invalid Credentials");
+        return "login";
+    }
+    
+    @GetMapping("/change-password")
+    public String changePasswordPage(HttpSession session) {
+
+        if (session.getAttribute("role") == null) {
+            return "redirect:/login";
+        }
+
+        return "changePassword";
+    }
+
+    @PostMapping("/change-password")
+    public String changePassword(
+            @RequestParam String oldPassword,
+            @RequestParam String newPassword,
+            HttpSession session,
+            Model model) {
+
+        String username = (String) session.getAttribute("user");
+        String role = (String) session.getAttribute("role");
+
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+        try (Connection con = getConnection()) {
+
+            String table = role.equals("EMPLOYEE") ? "employees" : "admin";
+
+            PreparedStatement ps =
+                con.prepareStatement("SELECT password FROM " + table + " WHERE username=?");
+
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+
+                String dbPassword = rs.getString("password");
+
+                if (!encoder.matches(oldPassword, dbPassword)) {
+                    model.addAttribute("error", "Old password incorrect");
+                    return "changePassword";
+                }
+
+                String hashed = encoder.encode(newPassword);
+
+                PreparedStatement updatePs =
+                    con.prepareStatement("UPDATE " + table + " SET password=? WHERE username=?");
+
+                updatePs.setString(1, hashed);
+                updatePs.setString(2, username);
+                updatePs.executeUpdate();
+
+                model.addAttribute("success", "Password updated successfully!");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         return "login";
     }
 

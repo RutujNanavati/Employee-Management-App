@@ -1,6 +1,9 @@
 package com.rutuj.EmployeeMavenProject.controller;
 
 import java.sql.*;
+import java.sql.Date;
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.*;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -165,7 +168,6 @@ public class EmployeeController {
 
         try (Connection con = getConnection()) {
 
-            // 🔥 First check employees table
             PreparedStatement empPs =
                     con.prepareStatement("SELECT * FROM employees WHERE id=?");
 
@@ -180,9 +182,36 @@ public class EmployeeController {
                 model.addAttribute("gender", empRs.getString("gender"));
                 model.addAttribute("address", empRs.getString("address"));
                 model.addAttribute("contactNo", empRs.getString("contactNo"));
-                model.addAttribute("profileRole", "EMPLOYEE"); // 🔥 Correct role
+                model.addAttribute("profileRole", "EMPLOYEE");
                 model.addAttribute("photo", empRs.getString("photo"));
 
+                // ================= AGE CALCULATION =================
+                Date dobDate = empRs.getDate("dob");
+                if (dobDate != null) {
+                    LocalDate dob = dobDate.toLocalDate();
+                    int age = Period.between(dob, LocalDate.now()).getYears();
+                    model.addAttribute("age", age);
+                    model.addAttribute("dob", dobDate);
+                } else {
+                    model.addAttribute("age", "-");
+                    model.addAttribute("dob", "-");
+                }
+
+                // ================= EXPERIENCE CALCULATION =================
+                Date joinDate = empRs.getDate("joining_date");
+                if (joinDate != null) {
+                    LocalDate joining = joinDate.toLocalDate();
+                    Period exp = Period.between(joining, LocalDate.now());
+
+                    String experience = exp.getYears() + " Years " +
+                                        exp.getMonths() + " Months";
+
+                    model.addAttribute("experience", experience);
+                    model.addAttribute("joiningDate", joinDate);
+                } else {
+                    model.addAttribute("experience", "-");
+                    model.addAttribute("joiningDate", "-");
+                }
 
                 return "profile";
             }
@@ -202,7 +231,9 @@ public class EmployeeController {
                 model.addAttribute("gender", "-");
                 model.addAttribute("address", "-");
                 model.addAttribute("contactNo", "-");
-                model.addAttribute("profileRole", adminRs.getString("role")); // 🔥 REAL ROLE
+                model.addAttribute("profileRole", adminRs.getString("role"));
+                model.addAttribute("age", "-");
+                model.addAttribute("experience", "-");
 
                 return "profile";
             }
@@ -238,11 +269,22 @@ public class EmployeeController {
     @GetMapping("/edit/{id}")
     public String editPage(@PathVariable int id, Model model, HttpSession session) {
     	
-        String role = (String) session.getAttribute("role");
-        if (role == null || 
-        	       (!"ADMIN".equals(role) && !"HR".equals(role))) {
-        	        return "redirect:/accessDenied";
-        	    }
+    	String role = (String) session.getAttribute("role");
+    	Integer sessionId = (Integer) session.getAttribute("employeeId");
+
+    	if (role == null) {
+    	    return "redirect:/login";
+    	}
+
+    	// 🔥 Employee can edit only own profile
+    	if ("EMPLOYEE".equals(role) && (sessionId == null || sessionId != id)) {
+    	    return "redirect:/accessDenied";
+    	}
+
+    	// HR and ADMIN allowed
+    	if (!"ADMIN".equals(role) && !"HR".equals(role) && !"EMPLOYEE".equals(role)) {
+    	    return "redirect:/accessDenied";
+    	}
 
         try (Connection con = getConnection();
              PreparedStatement ps =
@@ -257,8 +299,10 @@ public class EmployeeController {
                 model.addAttribute("lastName", rs.getString("lastName"));
                 model.addAttribute("username", rs.getString("username"));
                 model.addAttribute("gender", rs.getString("gender"));
+                model.addAttribute("dob", rs.getDate("dob"));
                 model.addAttribute("address", rs.getString("address"));
                 model.addAttribute("contactNo", rs.getString("contactNo"));
+                model.addAttribute("joiningDate", rs.getDate("joining_date"));               
                 model.addAttribute("selectedCountry", rs.getInt("country_id"));
                 model.addAttribute("selectedState", rs.getInt("state_id"));
                 model.addAttribute("selectedCity", rs.getInt("city_id"));
@@ -280,88 +324,27 @@ public class EmployeeController {
             @RequestParam String firstName,
             @RequestParam String lastName,
             @RequestParam String username,
-            @RequestParam String password,
-            @RequestParam String gender,
-            @RequestParam String address,
-            @RequestParam String contactNo,
-            @RequestParam Integer countryId,
-            @RequestParam Integer stateId,
-            @RequestParam Integer cityId,
-            @RequestParam("photoFile") MultipartFile photoFile
-
-    ) {
-
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        String hashedPassword = encoder.encode(password);
-
-        String photoName = null;
-
-        try {
-
-            if (!photoFile.isEmpty()) {
-                photoName = photoFile.getOriginalFilename();
-                String uploadPath = "C:/employee_uploads/" + photoName;
-                photoFile.transferTo(new java.io.File(uploadPath));
-            }
-
-            try (Connection con = getConnection();
-                 PreparedStatement ps = con.prepareStatement(
-                         "INSERT INTO employees(firstName,lastName,username,password,gender,address,contactNo,country_id,state_id,city_id,photo) VALUES(?,?,?,?,?,?,?,?,?,?,?)"
-                 )) {
-
-                ps.setString(1, firstName);
-                ps.setString(2, lastName);
-                ps.setString(3, username);
-                ps.setString(4, hashedPassword);
-                ps.setString(5, gender);
-                ps.setString(6, address);
-                ps.setString(7, contactNo);
-                ps.setInt(8, countryId);
-                ps.setInt(9, stateId);
-                ps.setInt(10, cityId);
-                ps.setString(11, photoName); // 🔥 PHOTO SAVE
-
-                ps.executeUpdate();
-
-                System.out.println("Employee Inserted With Photo");
-
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return "redirect:/employees";
-    }
-
-
-
-    // ================= UPDATE =================
-    @PostMapping("/update")
-    public String updateEmployee(
-    		@RequestParam(value = "id", required = false) Integer id,
-            @RequestParam String firstName,
-            @RequestParam String lastName,
-            @RequestParam String username,
             @RequestParam(required = false) String password,
+            @RequestParam String dob,
             @RequestParam String gender,
             @RequestParam String address,
             @RequestParam String contactNo,
             @RequestParam Integer countryId,
             @RequestParam Integer stateId,
             @RequestParam Integer cityId,
+            @RequestParam String joiningDate,
             @RequestParam("photoFile") MultipartFile photoFile
+
     ) {
 
         try (Connection con = getConnection()) {
-        	
-        	@SuppressWarnings("unused")
-			String hashedPassword = null;
-        	if (password != null && !password.isEmpty()) {
-        	    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        	    hashedPassword = encoder.encode(password);
-        	}
 
+            String hashedPassword = null;
+
+            if (password != null && !password.isEmpty()) {
+                BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+                hashedPassword = encoder.encode(password);
+            }
 
             String photoName = null;
 
@@ -371,7 +354,76 @@ public class EmployeeController {
                 photoFile.transferTo(new java.io.File(uploadPath));
             }
 
-            String sql = "UPDATE employees SET firstName=?, lastName=?, username=?, gender=?, address=?, contactNo=?, country_id=?, state_id=?, city_id=?";
+            PreparedStatement ps = con.prepareStatement(
+                    "INSERT INTO employees(firstName,lastName,username,password,dob,gender,address,contactNo,country_id,state_id,city_id,joining_date,photo) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)"
+            );
+
+            int index = 1;
+
+            ps.setString(index++, firstName);
+            ps.setString(index++, lastName);
+            ps.setString(index++, username);
+            ps.setString(index++, hashedPassword);
+
+            if (dob != null && !dob.isEmpty()) {
+                ps.setDate(index++, Date.valueOf(dob));
+            } else {
+                ps.setNull(index++, java.sql.Types.DATE);
+            }
+
+            ps.setString(index++, gender);
+            ps.setString(index++, address);
+            ps.setString(index++, contactNo);
+            ps.setInt(index++, countryId);
+            ps.setInt(index++, stateId);
+            ps.setInt(index++, cityId);
+
+            if (joiningDate != null && !joiningDate.isEmpty()) {
+                ps.setDate(index++, Date.valueOf(joiningDate));
+            } else {
+                ps.setNull(index++, java.sql.Types.DATE);
+            }
+
+            ps.setString(index++, photoName);
+
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "redirect:/employees";
+    }
+
+
+    // ================= UPDATE =================
+    @PostMapping("/update")
+    public String updateEmployee(
+            @RequestParam Integer id,
+            @RequestParam String firstName,
+            @RequestParam String lastName,
+            @RequestParam String username,
+            @RequestParam String gender,
+            @RequestParam(required = false) String dob,
+            @RequestParam String address,
+            @RequestParam String contactNo,
+            @RequestParam(required = false) String joiningDate,
+            @RequestParam Integer countryId,
+            @RequestParam Integer stateId,
+            @RequestParam Integer cityId,
+            @RequestParam("photoFile") MultipartFile photoFile
+    ) {
+
+        try (Connection con = getConnection()) {
+
+            String photoName = null;
+
+            if (!photoFile.isEmpty()) {
+                photoName = photoFile.getOriginalFilename();
+                String uploadPath = "C:/employee_uploads/" + photoName;
+                photoFile.transferTo(new java.io.File(uploadPath));
+            }
+
+            String sql = "UPDATE employees SET firstName=?, lastName=?, username=?, gender=?, dob=?, joining_date=?, address=?, contactNo=?, country_id=?, state_id=?, city_id=?";
 
             if (photoName != null) {
                 sql += ", photo=?";
@@ -382,10 +434,26 @@ public class EmployeeController {
             PreparedStatement ps = con.prepareStatement(sql);
 
             int index = 1;
+
             ps.setString(index++, firstName);
             ps.setString(index++, lastName);
             ps.setString(index++, username);
             ps.setString(index++, gender);
+
+            // DOB
+            if (dob != null && !dob.isEmpty()) {
+                ps.setDate(index++, Date.valueOf(dob));
+            } else {
+                ps.setNull(index++, Types.DATE);
+            }
+
+            // JOINING DATE
+            if (joiningDate != null && !joiningDate.isEmpty()) {
+                ps.setDate(index++, Date.valueOf(joiningDate));
+            } else {
+                ps.setNull(index++, Types.DATE);
+            }
+
             ps.setString(index++, address);
             ps.setString(index++, contactNo);
             ps.setInt(index++, countryId);
@@ -398,7 +466,8 @@ public class EmployeeController {
 
             ps.setInt(index, id);
 
-            ps.executeUpdate();
+            int rows = ps.executeUpdate();
+            System.out.println("Rows Updated: " + rows);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -459,6 +528,51 @@ public class EmployeeController {
         }
 
         return "redirect:/employees/profile/" + id;
+    }
+    
+    @GetMapping("/apply-leave")
+    public String showLeaveForm(HttpSession session) {
+
+        String role = (String) session.getAttribute("role");
+
+        if (role == null || !"EMPLOYEE".equals(role)) {
+            return "redirect:/accessDenied";
+        }
+
+        return "applyLeave";
+    }
+    
+    @PostMapping("/apply-leave")
+    public String applyLeave(
+            @RequestParam String fromDate,
+            @RequestParam String toDate,
+            @RequestParam String reason,
+            HttpSession session) {
+
+        Integer employeeId = (Integer) session.getAttribute("employeeId");
+
+        if (employeeId == null) {
+            return "redirect:/login";
+        }
+
+        try (Connection con = getConnection();
+             PreparedStatement ps = con.prepareStatement(
+                     "INSERT INTO leave_requests(employee_id, from_date, to_date, reason) VALUES(?,?,?,?)")) {
+
+            ps.setInt(1, employeeId);
+            ps.setDate(2, Date.valueOf(fromDate));
+            ps.setDate(3, Date.valueOf(toDate));
+            ps.setString(4, reason);
+
+            ps.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println("Role: " + session.getAttribute("role"));
+        System.out.println("EmployeeId: " + session.getAttribute("employeeId"));
+
+        return "redirect:/employees";
     }
 
 }
